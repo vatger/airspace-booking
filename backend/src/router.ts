@@ -5,6 +5,8 @@ import bookableAreasController from "./controllers/bookableAreas.controller";
 
 const router = Router();
 
+router.get("/areas/ED", areasController.getBookedAreas);
+
 router.get("/bookings", bookingController.getBookings);
 router.post("/bookings", bookingController.addBooking);
 router.delete("/bookings/:id", bookingController.deleteBooking);
