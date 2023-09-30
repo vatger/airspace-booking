@@ -126,11 +126,27 @@ const BookingDialog = ({
   ]);
 
   const handleBookingSubmitClick = () => {
+    const startDate = new Date(
+      selectedStartDate.getFullYear(),
+      selectedStartDate.getMonth(),
+      selectedStartDate.getDate(),
+      selectedStartTime.getHours(),
+      selectedStartTime.getMinutes()
+    );
+
+    const endDate = new Date(
+      selectedEndDate.getFullYear(),
+      selectedEndDate.getMonth(),
+      selectedEndDate.getDate(),
+      selectedEndTime.getHours(),
+      selectedEndTime.getMinutes()
+    );
+
     const booking: FrontendBooking = {
       _id: null,
       area_name: selectedAreas,
-      start_datetime: selectedStartTime,
-      end_datetime: selectedEndTime,
+      start_datetime: startDate,
+      end_datetime: endDate,
       booked_by: "VID Placeholder",
     };
 
@@ -156,7 +172,6 @@ const BookingDialog = ({
           <i className="pi pi-calendar"></i>
         </span>
         <Calendar
-          minDate={new Date()}
           value={selectedStartDate}
           onChange={(e) => setSelectedStartDate(e.value as Date)}
           dateFormat="dd.mm.yy"
@@ -173,7 +188,6 @@ const BookingDialog = ({
           <i className="pi pi-calendar"></i>
         </span>
         <Calendar
-          minDate={new Date()}
           value={selectedEndDate}
           onChange={(e) => setSelectedEndDate(e.value as Date)}
           dateFormat="dd.mm.yy"

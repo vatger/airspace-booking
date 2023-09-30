@@ -4,6 +4,7 @@ import bookableAreaModel, {
 } from "../models/bookableArea.model";
 import { consolidateBookings } from "../utils/bookings.util";
 import areaService from "./area.service";
+import Booking from "@shared/interfaces/booking.interface";
 
 async function getBookableAreas() {
   try {
@@ -41,7 +42,30 @@ async function addBookableArea(
   }
 }
 
-async function addBookedAreas() {
+async function addBookingToArea(booking: Booking) {
+  // Loop through each area_name in the booking
+  for (const area_name of booking.area_name) {
+    // Find the bookableArea using the area_name
+    const bookableArea: BookableAreasDocument | null =
+      await bookableAreaModel.findOne({ name: area_name });
+
+    if (bookableArea) {
+      // Create a new booking duration for the bookableArea
+      const bookingDuration = {
+        start: booking.start_datetime,
+        end: booking.end_datetime,
+      };
+
+      // Push the booking duration to the bookings array of the bookableArea
+      bookableArea.bookings.push(bookingDuration);
+
+      // Save the updated bookableArea
+      await bookableArea.save();
+    }
+  }
+}
+
+async function addBookedAreasToEuupData() {
   const bookableAreas = await getBookableAreas();
   for (const bookableArea of bookableAreas) {
     if (bookableArea.bookings.length === 0) {
@@ -72,4 +96,9 @@ async function addBookedAreas() {
   }
 }
 
-export default { getBookableAreas, addBookableArea, addBookedAreas };
+export default {
+  getBookableAreas,
+  addBookableArea,
+  addBookedAreasToEuupData,
+  addBookingToArea,
+};
