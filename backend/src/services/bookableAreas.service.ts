@@ -3,7 +3,7 @@ import bookableAreaModel, {
   BookableAreasDocument,
 } from "../models/bookableArea.model";
 import { consolidateBookings } from "../utils/bookings.util";
-import areaService from "./area.service";
+import euupService from "./euup.service";
 import Booking from "@shared/interfaces/booking.interface";
 
 async function getBookableAreas() {
@@ -65,6 +65,8 @@ async function addBookingToArea(booking: Booking) {
   }
 }
 
+async function removeBookingFromArea(id: string) {}
+
 async function addBookedAreasToEuupData() {
   const bookableAreas = await getBookableAreas();
   for (const bookableArea of bookableAreas) {
@@ -84,7 +86,7 @@ async function addBookedAreasToEuupData() {
           { new: true }
         );
       if (areaWithConsolidatedBookingTimes) {
-        areaService.addArea(
+        euupService.addArea(
           areaWithConsolidatedBookingTimes.name,
           areaWithConsolidatedBookingTimes.minimum_fl,
           areaWithConsolidatedBookingTimes.maximum_fl,
@@ -101,4 +103,5 @@ export default {
   addBookableArea,
   addBookedAreasToEuupData,
   addBookingToArea,
+  removeBookingFromArea,
 };
