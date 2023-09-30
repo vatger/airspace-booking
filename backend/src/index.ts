@@ -5,6 +5,9 @@ import cron from "node-cron";
 
 import config from "./config";
 import router from "./router";
+import euupCacheService from "./services/euupCache.service";
+import areaService from "./services/area.service";
+import bookableAreasService from "./services/bookableAreas.service";
 
 (async () => {
   if (!config().mongoUri) {
@@ -12,6 +15,16 @@ import router from "./router";
   }
 
   await mongoose.connect(config().mongoUri);
+
+  cron.schedule("*/30 * * * *", async () => {
+    try {
+      await areaService.clearAreasCollection();
+      await euupCacheService.updatedCachedEuupData();
+      await bookableAreasService.addBookedAreas();
+    } catch (error) {
+      console.log("Error while getting lara data", error);
+    }
+  });
 
   const app = express();
 
