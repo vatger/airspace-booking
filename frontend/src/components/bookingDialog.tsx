@@ -6,10 +6,9 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { Divider } from "primereact/divider";
 
-import FrontendBooking from "../interfaces/condition.interface";
-
 import createDateWithTime from "../utils/date.util";
-import bookingService from "services/booking.service";
+import { Booking } from "@shared/interfaces/bookableArea.interface";
+import bookableAreaService from "services/bookableArea.service";
 
 const BookingDialog = ({
   bookableAreas,
@@ -142,15 +141,16 @@ const BookingDialog = ({
       selectedEndTime.getMinutes()
     );
 
-    const booking: FrontendBooking = {
-      _id: null,
-      area_name: selectedAreas,
+    //@ts-ignore
+    const booking: Booking = {
       start_datetime: startDate,
       end_datetime: endDate,
       booked_by: "VID Placeholder",
     };
 
-    bookingService.addBooking(booking).then(onBookingCompleted);
+    bookableAreaService
+      .addBookingToArea(selectedAreas, booking)
+      .then(onBookingCompleted);
   };
 
   return (

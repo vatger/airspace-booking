@@ -1,6 +1,6 @@
 import axios from "axios";
 import { euupModel, EuupDocument, areaModel } from "../models/euup.model";
-import getBookableAreasService from "./bookableAreas.service";
+import bookableAreaService from "./bookableArea.service";
 
 async function getEuupData(): Promise<EuupDocument | null> {
   try {
@@ -33,20 +33,29 @@ async function addArea(
   end_datetime: Date
 ) {
   try {
-    // Create a new Area document using the Mongoose model
-    const area = new euupModel({
+    // Find the single object in the collection
+    const euupDataObject = await euupModel.findOne();
+
+    if (!euupDataObject) {
+      console.error("The EUUP data object could not be found");
+    }
+
+    // Create a new area with the provided data
+    const newArea = {
       name,
       minimum_fl,
       maximum_fl,
       start_datetime,
       end_datetime,
-    });
+    };
 
-    // Save the new Area document to the database
-    await area.save();
+    // Push the new area into the areas array of the existing object
+    euupDataObject?.areas.push(newArea);
+
+    // Save the updated object back to the database
+    await euupDataObject?.save();
   } catch (error) {
-    console.log("Error adding area:", error);
-    throw error;
+    console.error("Error adding area to the EUUP data object:", error);
   }
 }
 
@@ -65,7 +74,7 @@ async function updatedCachedEuupData() {
     });
 
     // Fetch the bookableAreas collection from the database
-    const bookableAreas = await getBookableAreasService.getBookableAreas();
+    const bookableAreas = await bookableAreaService.getBookableAreas();
 
     for (const areaData of data.areas) {
       // check if the area is bookable, only cache non-bookable areas

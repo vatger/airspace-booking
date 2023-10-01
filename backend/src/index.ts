@@ -6,7 +6,7 @@ import cron from "node-cron";
 import config from "./config";
 import router from "./router";
 import euupService from "./services/euup.service";
-import bookableAreasService from "./services/bookableAreas.service";
+import bookableAreaService from "./services/bookableArea.service";
 
 (async () => {
   if (!config().mongoUri) {
@@ -19,7 +19,7 @@ import bookableAreasService from "./services/bookableAreas.service";
     try {
       await euupService.clearEuupData();
       await euupService.updatedCachedEuupData();
-      await bookableAreasService.addBookedAreasToEuupData();
+      await bookableAreaService.addBookedAreasToEuupData();
     } catch (error) {
       console.log("Error while getting lara data", error);
     }

@@ -1,7 +1,4 @@
-import Header from "./header";
-
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Toolbar } from "primereact/toolbar";
 import { Button } from "primereact/button";
@@ -9,38 +6,32 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Dialog } from "primereact/dialog";
 
-import BookableArea from "@shared/interfaces/bookableArea.interface";
-import FrontendBooking from "../interfaces/condition.interface";
-
-import bookingService from "../services/booking.service";
+import { BookableArea } from "@shared/interfaces/bookableArea.interface";
 import bookableAreaService from "services/bookableArea.service";
-
+import { FrontendBooking } from "interfaces/FrontendBooking";
 import formatDateTime from "utils/dateFormater.util";
-import sortBookingsByStartEndDate from "utils/bookingSorter.util";
 import BookingDialog from "./bookingDialog";
+import sortBookingsByStartEndDate from "../utils/bookingSorter.util";
 
 const BookingPage = () => {
+  const [bookableAreas, setBookableAreas] = useState<BookableArea[]>([]);
   const [bookings, setBookings] = useState<FrontendBooking[]>([]);
-
   const [showNewBookingDialog, setShowNewBookingDialog] =
     useState<boolean>(false);
-  const [bookableAreas, setBookableAreas] = useState<string[]>([]);
 
   const fetchAndSetBookings = async () => {
     try {
-      const data = await bookingService.getBookings();
-      const convertedBookingData: FrontendBooking[] = data.map(
-        (element: FrontendBooking) => ({
+      const data = await bookableAreaService.getBookableAreas();
+      const convertedBookableAreaData: BookableArea[] = data.map(
+        (element: BookableArea) => ({
           _id: element._id,
-          area_name: element.area_name,
-          start_datetime: element.start_datetime,
-          end_datetime: element.end_datetime,
-          booked_by: element.booked_by,
+          name: element.name,
+          minimum_fl: element.minimum_fl,
+          maximum_fl: element.maximum_fl,
+          bookings: element.bookings,
         })
       );
-
-      const bookingsSorted = sortBookingsByStartEndDate(convertedBookingData);
-      setBookings(bookingsSorted);
+      setBookableAreas(convertedBookableAreaData);
     } catch (error) {
       console.error(error);
     }
@@ -48,19 +39,29 @@ const BookingPage = () => {
 
   useEffect(() => {
     fetchAndSetBookings();
-    bookableAreaService.getBookableAreas().then((data: BookableArea[]) => {
-      const convertedBookableAreaData: string[] = data.map(
-        (element: BookableArea) => {
-          return element.name;
-        }
-      );
-      setBookableAreas(convertedBookableAreaData);
-    });
   }, []);
 
-  const handleNewBooking = () => {
-    setShowNewBookingDialog(true);
-  };
+  useEffect(() => {
+    const allBookings: FrontendBooking[] = [];
+
+    bookableAreas.forEach((area: BookableArea) => {
+      const area_name = area.name;
+      for (const booking of area.bookings) {
+        const frontendBooking: FrontendBooking = {
+          _id: booking._id,
+          area_name: area_name,
+          start_datetime: booking.start_datetime,
+          end_datetime: booking.end_datetime,
+          booked_by: booking.booked_by,
+        };
+
+        allBookings.push(frontendBooking);
+      }
+    });
+
+    const bookingsSorted = sortBookingsByStartEndDate(allBookings);
+    setBookings(bookingsSorted);
+  }, [bookableAreas]);
 
   const startContent = [
     <Button
@@ -68,15 +69,23 @@ const BookingPage = () => {
       label="New"
       icon="pi pi-plus"
       className="mr-2"
-      onClick={handleNewBooking}
+      onClick={() => setShowNewBookingDialog(true)}
     />,
   ];
 
   const handleDelete = (rowData: FrontendBooking) => {
     if (rowData._id !== null) {
-      bookingService.deleteBooking(rowData._id);
-      setBookings((prevBookings) =>
-        prevBookings.filter((booking) => booking._id !== rowData._id)
+      bookableAreaService.deleteBooking(rowData._id, rowData.area_name);
+      setBookableAreas((prevBookableAreas) =>
+        prevBookableAreas.map((bookableArea) => {
+          if (bookableArea.name === rowData.area_name) {
+            const updatedBookings = bookableArea.bookings.filter(
+              (booking) => booking._id !== rowData._id
+            );
+            return { ...bookableArea, bookings: updatedBookings };
+          }
+          return bookableArea;
+        })
       );
     }
   };
@@ -98,7 +107,6 @@ const BookingPage = () => {
 
   return (
     <div className="p-grid p-dir-col">
-      <Header />
       <Toolbar start={startContent} />
       <Dialog
         visible={showNewBookingDialog}
@@ -107,16 +115,15 @@ const BookingPage = () => {
         }}
       >
         <BookingDialog
-          bookableAreas={bookableAreas}
+          bookableAreas={bookableAreas.map((bookableArea: BookableArea) => {
+            return bookableArea.name;
+          })}
           onBookingCompleted={handleBookingCompleted}
         />
       </Dialog>
       <DataTable value={bookings}>
-        <Column
-          field="area_name"
-          header="Area"
-          body={(data) => data.area_name.join(", ")}
-        />
+        <Column field="area_name" header="Area" />
+        <Column field="_id" header="ID" />
         <Column
           field="start_datetime"
           header="Begin"

@@ -1,16 +1,13 @@
 import { Router } from "express";
-import areasController from "./controllers/areas.controller";
-import bookingController from "./controllers/booking.controller";
 import bookableAreasController from "./controllers/bookableAreas.controller";
+import euupService from "./services/euup.service";
 
 const router = Router();
 
-router.get("/areas/ED", areasController.getBookedAreas);
+router.get("/areas/ED", euupService.getEuupData);
 
-router.get("/bookings", bookingController.getBookings);
-router.post("/bookings", bookingController.addBooking);
-router.delete("/bookings/:id", bookingController.deleteBooking);
-
-router.get("/bookableAreas", bookableAreasController.getBookedAreas);
+router.get("/bookableAreas", bookableAreasController.getBookableAreas);
+router.patch("/bookableAreas/", bookableAreasController.addBookingToArea);
+router.delete("/bookings/:id", bookableAreasController.deleteBookingFromArea);
 
 export default router;

@@ -1,13 +1,15 @@
 import { NextFunction, Request, Response } from "express";
-import bookableAreasService from "../services/bookableAreas.service";
+import { BookableAreaDocument } from "../models/bookableArea.model";
+import bookableAreaService from "../services/bookableArea.service";
 
-export async function getBookedAreas(
+export async function getBookableAreas(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const areas = await bookableAreasService.getBookableAreas();
+    const areas: BookableAreaDocument[] =
+      await bookableAreaService.getBookableAreas();
 
     res.json(areas);
   } catch (error) {
@@ -15,6 +17,54 @@ export async function getBookedAreas(
   }
 }
 
+export async function addBookableArea(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const area: BookableAreaDocument =
+      await bookableAreaService.addBookableArea(req.body);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function addBookingToArea(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const response = await bookableAreaService.addBookingToArea(
+      req.body.selectedAreas,
+      req.body.booking
+    );
+    res.json(response);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteBookingFromArea(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    await bookableAreaService.deleteBookingFromArea(
+      req.params.id,
+      req.body.area_name
+    );
+    res.json();
+  } catch (error) {
+    next(error);
+  }
+}
+
 export default {
-  getBookedAreas,
+  getBookableAreas,
+  addBookableArea,
+  addBookingToArea,
+  deleteBookingFromArea,
 };

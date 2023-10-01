@@ -1,9 +1,7 @@
-import { BookingDuration } from "@shared/interfaces/bookableArea.interface";
+import { Booking } from "@shared/interfaces/bookableArea.interface";
 
 // Function to check for and consolidate overlapping bookings
-export function consolidateBookings(
-  bookings: BookingDuration[]
-): BookingDuration[] {
+export function consolidateBookings(bookings: Booking[]): Booking[] {
   if (bookings.length <= 1) {
     return bookings; // No overlaps to consolidate
   }
@@ -11,21 +9,21 @@ export function consolidateBookings(
   // Sort the bookings by their start times
   const sortedBookings = bookings
     .slice()
-    .sort((a, b) => a.start.getTime() - b.start.getTime());
+    .sort((a, b) => a.start_datetime.getTime() - b.start_datetime.getTime());
 
-  const consolidatedBookings: BookingDuration[] = [sortedBookings[0]]; // Initialize with the first booking
+  const consolidatedBookings: Booking[] = [sortedBookings[0]]; // Initialize with the first booking
 
   for (let i = 1; i < sortedBookings.length; i++) {
     const currentBooking = sortedBookings[i];
     const lastConsolidatedBooking =
       consolidatedBookings[consolidatedBookings.length - 1];
 
-    if (currentBooking.start <= lastConsolidatedBooking.end) {
+    if (currentBooking.start_datetime <= lastConsolidatedBooking.end_datetime) {
       // There is an overlap, consolidate the current booking with the last consolidated booking
-      lastConsolidatedBooking.end = new Date(
+      lastConsolidatedBooking.end_datetime = new Date(
         Math.max(
-          currentBooking.end.getTime(),
-          lastConsolidatedBooking.end.getTime()
+          currentBooking.end_datetime.getTime(),
+          lastConsolidatedBooking.end_datetime.getTime()
         )
       );
     } else {
