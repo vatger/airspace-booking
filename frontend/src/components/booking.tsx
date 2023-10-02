@@ -7,13 +7,15 @@ import { Column } from "primereact/column";
 import { Dialog } from "primereact/dialog";
 import { TabMenu } from "primereact/tabmenu";
 
-import { BookableArea } from "@shared/interfaces/bookableArea.interface";
-import bookableAreaService from "services/bookableArea.service";
-import { FrontendBooking } from "interfaces/FrontendBooking";
-import formatDateTime from "utils/dateFormater.util";
 import BookingDialog from "./bookingDialog";
-import sortBookingsByStartEndDate from "../utils/bookingSorter.util";
 import BookingsDataTable from "./BookingsDataTable";
+
+import { BookableArea } from "@shared/interfaces/bookableArea.interface";
+import { FrontendBooking } from "interfaces/FrontendBooking";
+
+import bookableAreaService from "services/bookableArea.service";
+
+import sortBookingsByStartEndDate from "../utils/bookingSorter.util";
 
 const BookingPage = () => {
   const [bookableAreas, setBookableAreas] = useState<BookableArea[]>([]);
