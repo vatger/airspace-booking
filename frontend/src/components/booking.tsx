@@ -12,6 +12,7 @@ import { FrontendBooking } from "interfaces/FrontendBooking";
 import formatDateTime from "utils/dateFormater.util";
 import BookingDialog from "./bookingDialog";
 import sortBookingsByStartEndDate from "../utils/bookingSorter.util";
+import BookingsDataTable from "./BookingsDataTable";
 
 const BookingPage = () => {
   const [bookableAreas, setBookableAreas] = useState<BookableArea[]>([]);
@@ -121,22 +122,7 @@ const BookingPage = () => {
           onBookingCompleted={handleBookingCompleted}
         />
       </Dialog>
-      <DataTable value={bookings}>
-        <Column field="area_name" header="Area" />
-        <Column field="_id" header="ID" />
-        <Column
-          field="start_datetime"
-          header="Begin"
-          body={(data) => formatDateTime(data.start_datetime)}
-        />
-        <Column
-          field="end_datetime"
-          header="End"
-          body={(data) => formatDateTime(data.end_datetime)}
-        />
-        <Column field="booked_by" header="Booked by" />
-        <Column header="Actions" body={deleteButtonTemplate} />
-      </DataTable>
+        <BookingsDataTable bookings={bookings} handleDelete={handleDelete} />
     </div>
   );
 };
