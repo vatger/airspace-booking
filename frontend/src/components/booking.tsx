@@ -5,6 +5,7 @@ import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Dialog } from "primereact/dialog";
+import { TabMenu } from "primereact/tabmenu";
 
 import { BookableArea } from "@shared/interfaces/bookableArea.interface";
 import bookableAreaService from "services/bookableArea.service";
@@ -19,6 +20,8 @@ const BookingPage = () => {
   const [bookings, setBookings] = useState<FrontendBooking[]>([]);
   const [showNewBookingDialog, setShowNewBookingDialog] =
     useState<boolean>(false);
+
+  const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const fetchAndSetBookings = async () => {
     try {
@@ -91,16 +94,6 @@ const BookingPage = () => {
     }
   };
 
-  const deleteButtonTemplate = (rowData: FrontendBooking) => {
-    return (
-      <Button
-        icon="pi pi-trash"
-        className="p-button-danger"
-        onClick={() => handleDelete(rowData)}
-      />
-    );
-  };
-
   const handleBookingCompleted = () => {
     setShowNewBookingDialog(false);
     fetchAndSetBookings();
@@ -122,7 +115,18 @@ const BookingPage = () => {
           onBookingCompleted={handleBookingCompleted}
         />
       </Dialog>
+      <TabMenu
+        model={[
+          { label: "Overview", icon: "pi pi-fw pi-align-left" },
+          { label: "All Bookings", icon: "pi pi-fw pi-bars" },
+        ]}
+        activeIndex={activeIndex}
+        onTabChange={(e) => setActiveIndex(e.index)}
+      />
+      {activeIndex === 0 && <div> Overview Placeholder</div>}
+      {activeIndex === 1 && (
         <BookingsDataTable bookings={bookings} handleDelete={handleDelete} />
+      )}
     </div>
   );
 };
