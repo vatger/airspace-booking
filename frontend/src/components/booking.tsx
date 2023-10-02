@@ -9,6 +9,7 @@ import { TabMenu } from "primereact/tabmenu";
 
 import BookingDialog from "./bookingDialog";
 import BookingsDataTable from "./BookingsDataTable";
+import BookingAreaOverview from "./BookingAreaOverview";
 
 import { BookableArea } from "@shared/interfaces/bookableArea.interface";
 import { FrontendBooking } from "interfaces/FrontendBooking";
@@ -125,7 +126,9 @@ const BookingPage = () => {
         activeIndex={activeIndex}
         onTabChange={(e) => setActiveIndex(e.index)}
       />
-      {activeIndex === 0 && <div> Overview Placeholder</div>}
+      {activeIndex === 0 && (
+        <BookingAreaOverview bookableAreas={bookableAreas} />
+      )}
       {activeIndex === 1 && (
         <BookingsDataTable bookings={bookings} handleDelete={handleDelete} />
       )}
