@@ -1,0 +1,18 @@
+
+.custombar1 .p-scrollpanel-wrapper {
+    border-right: 10px ;
+}
+
+.custombar1 .p-scrollpanel-bar-y {
+    background-color: var(--primary-300);
+    opacity: 1;
+    transition: background-color .3s;
+}
+
+.custombar1 .p-scrollpanel-bar-x {
+    opacity: 0;
+}
+
+.custombar1 .p-scrollpanel-bar:hover {
+    background-color: var(--primary-400);
+}

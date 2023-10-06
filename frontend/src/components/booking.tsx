@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 
 import { Toolbar } from "primereact/toolbar";
 import { Button } from "primereact/button";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 import { Dialog } from "primereact/dialog";
 import { TabMenu } from "primereact/tabmenu";
 

@@ -3,7 +3,7 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 
 import { Booking } from "@shared/interfaces/bookableArea.interface";
-import formatDateTime from "utils/dateFormater.util";
+import { formatDateTime } from "utils/dateFormater.util";
 import { FrontendBooking } from "interfaces/FrontendBooking";
 
 const BookingsDataTable = ({
