@@ -1,10 +1,10 @@
 import { Router } from "express";
 import bookableAreasController from "./controllers/bookableAreas.controller";
-import euupService from "./services/euup.service";
+import euupController from "./controllers/euup.controller";
 
 const router = Router();
 
-router.get("/areas/ED", euupService.getEuupData);
+router.get("/areas/ED", euupController.getEuupData);
 
 router.get("/bookableAreas", bookableAreasController.getBookableAreas);
 router.patch("/bookableAreas/", bookableAreasController.addBookingToArea);
