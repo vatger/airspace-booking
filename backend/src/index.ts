@@ -15,28 +15,23 @@ import bookableAreaService from "./services/bookableArea.service";
 
   await mongoose.connect(config().mongoUri);
 
-  // Run tasks on startup
-  (async () => {
+  const updateData = async () => {
     try {
-      await bookableAreaService.removeOldBookings();
+      bookableAreaService.removeOldBookings();
       await euupService.clearEuupData();
       await euupService.updatedCachedEuupData();
       await bookableAreaService.addBookedAreasToEuupData();
     } catch (error) {
       console.log("Error while getting lara data", error);
     }
-  })();
+  };
+
+  // run tasks on startup
+  updateData();
 
   // Schedule tasks
   cron.schedule("*/30 * * * *", async () => {
-    try {
-      await bookableAreaService.removeOldBookings();
-      await euupService.clearEuupData();
-      await euupService.updatedCachedEuupData();
-      await bookableAreaService.addBookedAreasToEuupData();
-    } catch (error) {
-      console.log("Error while getting lara data", error);
-    }
+    updateData();
   });
 
   const app = express();
