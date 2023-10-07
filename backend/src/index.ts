@@ -18,6 +18,7 @@ import bookableAreaService from "./services/bookableArea.service";
   // Run tasks on startup
   (async () => {
     try {
+      await bookableAreaService.removeOldBookings();
       await euupService.clearEuupData();
       await euupService.updatedCachedEuupData();
       await bookableAreaService.addBookedAreasToEuupData();
@@ -29,6 +30,7 @@ import bookableAreaService from "./services/bookableArea.service";
   // Schedule tasks
   cron.schedule("*/30 * * * *", async () => {
     try {
+      await bookableAreaService.removeOldBookings();
       await euupService.clearEuupData();
       await euupService.updatedCachedEuupData();
       await bookableAreaService.addBookedAreasToEuupData();

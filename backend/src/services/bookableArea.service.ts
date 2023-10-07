@@ -102,10 +102,31 @@ export async function deleteBookingFromArea(
   }
 }
 
+export async function removeOldBookings() {
+  try {
+    const bookableAreas = await bookableAreaModel.find().exec();
+
+    const timeNow = new Date();
+
+    for (const bookableArea of bookableAreas) {
+      bookableArea.bookings = bookableArea.bookings.filter((booking) => {
+        // Filter all bookings which are in the past
+        return booking.end_datetime > timeNow;
+      });
+
+      // Save the updated bookableArea
+      await bookableArea.save();
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export default {
   getBookableAreas,
   addBookableArea,
   addBookedAreasToEuupData,
   addBookingToArea,
   deleteBookingFromArea,
+  removeOldBookings,
 };
