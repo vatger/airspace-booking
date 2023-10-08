@@ -6,7 +6,7 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { Divider } from "primereact/divider";
 
-import createDateWithTime from "../utils/date.util";
+import { createDateForDuration, createDateWithTime } from "../utils/date.util";
 import { Booking } from "@shared/interfaces/bookableArea.interface";
 import bookableAreaService from "services/bookableArea.service";
 
@@ -18,13 +18,11 @@ const BookingDialog = ({
   onBookingCompleted: () => void;
 }) => {
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
-  const [selectedStartDate, setSelectedStartDate] = useState<Date>(new Date());
-  const [selectedEndDate, setSelectedEndDate] = useState<Date>(new Date());
-  const [selectedStartTime, setSelectedStartTime] = useState<Date>(
-    createDateWithTime(2, 17, 0)
+  const [selectedStartDate, setSelectedStartDate] = useState<Date>(
+    createDateWithTime(0, 17, 0)
   );
-  const [selectedEndTime, setSelectedEndTime] = useState<Date>(
-    createDateWithTime(2, 20, 0)
+  const [selectedDuration, setSelectedDuration] = useState<Date>(
+    createDateForDuration(3)
   );
 
   const [validBooking, setValidBooking] = useState<boolean>(false);
@@ -59,33 +57,15 @@ const BookingDialog = ({
     if (
       selectedAreas === null ||
       selectedStartDate === null ||
-      selectedStartTime === null ||
-      selectedEndTime === null
+      selectedDuration === null
     ) {
       return;
     }
     const areaSelectionIsValid = selectedAreas.length !== 0;
 
-    const startDate = new Date(
-      selectedStartDate.getFullYear(),
-      selectedStartDate.getMonth(),
-      selectedStartDate.getDate(),
-      selectedStartTime.getHours(),
-      selectedStartTime.getMinutes()
-    );
-
-    const endDate = new Date(
-      selectedEndDate.getFullYear(),
-      selectedEndDate.getMonth(),
-      selectedEndDate.getDate(),
-      selectedEndTime.getHours(),
-      selectedEndTime.getMinutes()
-    );
-
-    const bookingIsMoreThan30Min =
-      endDate.getTime() - startDate.getTime() >= 30 * 60 * 1000;
+    const bookingIsMoreThan30Min = selectedDuration.getTime() >= 30 * 60 * 1000;
     const bookingIsLessThan24Hours =
-      endDate.getTime() - startDate.getTime() <= 24 * 60 * 60 * 1000;
+      selectedDuration.getTime() <= 24 * 60 * 60 * 1000;
 
     if (!bookingIsMoreThan30Min) {
       showToast(
@@ -116,87 +96,72 @@ const BookingDialog = ({
     } else {
       setValidBooking(false);
     }
-  }, [
-    selectedAreas,
-    selectedStartDate,
-    selectedEndDate,
-    selectedStartTime,
-    selectedEndTime,
-  ]);
+  }, [selectedAreas, selectedDuration, selectedStartDate]);
 
   const handleBookingSubmitClick = () => {
-    const startDate = new Date(
-      selectedStartDate.getFullYear(),
-      selectedStartDate.getMonth(),
-      selectedStartDate.getDate(),
-      selectedStartTime.getHours(),
-      selectedStartTime.getMinutes()
-    );
-
     const endDate = new Date(
-      selectedEndDate.getFullYear(),
-      selectedEndDate.getMonth(),
-      selectedEndDate.getDate(),
-      selectedEndTime.getHours(),
-      selectedEndTime.getMinutes()
+      selectedStartDate.getTime() +
+        (selectedDuration.getTime() -
+          selectedDuration.getTimezoneOffset() * 60 * 1000)
     );
 
     //@ts-ignore
     const booking: Booking = {
-      start_datetime: startDate,
+      start_datetime: selectedStartDate,
       end_datetime: endDate,
       booked_by: "VID Placeholder",
     };
-
     bookableAreaService
       .addBookingToArea(selectedAreas, booking)
       .then(onBookingCompleted);
   };
 
+  const boxStyle = {
+    flex: 1,
+  };
+
   return (
     <>
       <Toast ref={toast} />
-      <div className="p-inputgroup">
-        <span className="p-inputgroup-addon">
-          <i className="pi pi-box"></i>
-        </span>
-        <MultiSelect
-          value={selectedAreas}
-          onChange={(e) => setSelectedAreas(e.value)}
-          options={bookableAreas}
-        />
-      </div>
-      <Divider />
-      <div className="p-inputgroup">
-        <span className="p-inputgroup-addon">
-          <i className="pi pi-calendar"></i>
-        </span>
-        <Calendar
-          value={selectedStartDate}
-          onChange={(e) => setSelectedStartDate(e.value as Date)}
-          dateFormat="dd.mm.yy"
-        />
-        <Calendar
-          timeOnly
-          value={selectedStartTime}
-          onChange={(e) => setSelectedStartTime(e.value as Date)}
-        />
-      </div>
-      <Divider />
-      <div className="p-inputgroup">
-        <span className="p-inputgroup-addon">
-          <i className="pi pi-calendar"></i>
-        </span>
-        <Calendar
-          value={selectedEndDate}
-          onChange={(e) => setSelectedEndDate(e.value as Date)}
-          dateFormat="dd.mm.yy"
-        />
-        <Calendar
-          timeOnly
-          value={selectedEndTime}
-          onChange={(e) => setSelectedEndTime(e.value as Date)}
-        />
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <div className="p-inputgroup" style={boxStyle}>
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-box"></i>
+          </span>
+          <MultiSelect
+            value={selectedAreas}
+            onChange={(e) => setSelectedAreas(e.value)}
+            options={bookableAreas}
+            style={{ width: "10vw" }}
+          />
+        </div>
+        <Divider layout="vertical" />
+        <div className="p-inputgroup" style={boxStyle}>
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-calendar"></i>
+          </span>
+          <Calendar
+            value={selectedStartDate}
+            onChange={(e) => setSelectedStartDate(e.value as Date)}
+            dateFormat="dd.mm.yy"
+            showTime
+            hourFormat="24"
+            style={{ width: "18ch" }}
+          />
+          <span className="p-inputgroup-addon">
+            <i className="pi pi-hourglass"></i>
+          </span>
+          <Calendar
+            timeOnly
+            value={selectedDuration}
+            onChange={(e) => setSelectedDuration(e.value as Date)}
+            style={{ width: "8ch" }}
+          />
+        </div>
       </div>
       <Divider />
       <div className="p-inputgroup">

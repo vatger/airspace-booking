@@ -1,4 +1,4 @@
-export const createDateWithTime = (
+const createDateWithTime = (
   dayOffsetFromToday: number,
   hours: number,
   minutes: number
@@ -14,4 +14,12 @@ export const createDateWithTime = (
   return date;
 };
 
-export default createDateWithTime;
+const createDateForDuration = (hours: number) => {
+  const date = new Date(0);
+
+  date.setHours(hours);
+
+  return date;
+};
+
+export { createDateForDuration, createDateWithTime };
