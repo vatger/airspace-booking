@@ -10,7 +10,11 @@ import {
   Booking,
 } from "@shared/interfaces/bookableArea.interface";
 
-import { formatDateOnly, formatTimeOnly } from "utils/dateFormater.util";
+import {
+  formatDateOnly,
+  formatEndTime,
+  formatTimeOnly,
+} from "utils/dateFormater.util";
 import React from "react";
 
 interface DateRecord {
@@ -30,7 +34,7 @@ const BookingAreaOverview = ({
       <Timeline
         value={[
           formatTimeOnly(booking.start_datetime),
-          formatTimeOnly(booking.end_datetime),
+          formatEndTime(booking.start_datetime, booking.end_datetime),
         ]}
         align="top"
         content={(item) => item}

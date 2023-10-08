@@ -48,4 +48,28 @@ const formatTimeOnly = (dateInput: Date | string) => {
   return formattedTime;
 };
 
-export { formatDateTime, formatDateOnly, formatTimeOnly };
+const formatEndTime = (startDate: Date, endDate: Date) => {
+  const datesAreOnSameDay =
+    startDate.getFullYear() === endDate.getFullYear() &&
+    startDate.getMonth() === endDate.getMonth() &&
+    startDate.getDay() === endDate.getDay();
+  if (datesAreOnSameDay) {
+    const hours = String(endDate.getUTCHours()).padStart(2, "0");
+    const minutes = String(endDate.getUTCMinutes()).padStart(2, "0");
+
+    const formattedTime = `${hours}:${minutes}`;
+    return formattedTime;
+  } else {
+    const month = String(endDate.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(endDate.getUTCDate()).padStart(2, "0");
+    const hours = String(endDate.getUTCHours()).padStart(2, "0");
+    const minutes = String(endDate.getUTCMinutes()).padStart(2, "0");
+
+    const formattedDate = `${day}.${month}`;
+    const formattedTime = `${hours}:${minutes}`;
+
+    return `${formattedDate} ${formattedTime}`;
+  }
+};
+
+export { formatDateTime, formatDateOnly, formatTimeOnly, formatEndTime };
