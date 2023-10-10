@@ -12,6 +12,8 @@ import bookableAreaService from "../services/bookableArea.service";
 
 import { Booking } from "@/shared/interfaces/bookableArea.interface";
 
+import { BookingResponse } from "../../../shared/types/BookingResponse";
+
 const BookingDialog = ({
   bookableAreas,
   onBookingCompleted,
@@ -32,6 +34,7 @@ const BookingDialog = ({
   const toast = useRef<Toast>(null);
   const toastMinBookingCooldown = useRef(false);
   const toastMaxBookingCooldown = useRef(false);
+  const toastBackendResponse = useRef(false);
   const showToast = (
     severity: "success" | "error" | "warn" | "info",
     summary: string,
@@ -116,7 +119,25 @@ const BookingDialog = ({
     bookableAreaService
       .addBookingToArea(selectedAreas, booking)
       .then((response) => {
-        onBookingCompleted();
+        if (response.status === BookingResponse.BookingSuccess) {
+          onBookingCompleted();
+        } else if (response.status === BookingResponse.BookingFailure) {
+          showToast(
+            "error",
+            "Could not submit booking",
+            "",
+            30,
+            toastBackendResponse
+          );
+        } else if (response.status === BookingResponse.DurationOutOfLimits) {
+          showToast(
+            "warn",
+            "Could not submit booking",
+            "A booking must not be longer than 24 hours",
+            30,
+            toastBackendResponse
+          );
+        }
       })
       .catch((error) => {
         console.error(error);

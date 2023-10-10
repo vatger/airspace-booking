@@ -7,12 +7,7 @@ import bookableAreaModel, {
 } from "../models/bookableArea.model";
 import { consolidateBookings } from "../utils/bookings.util";
 import euupService from "./euup.service";
-
-const enum BookingResponse {
-  BookingSuccess,
-  BookingFailure,
-  DurationOutOfLimits,
-}
+import { BookingResponse } from "@/shared/types/BookingResponse";
 
 async function getBookableAreas() {
   try {
@@ -48,7 +43,7 @@ async function addBookingToArea(selectedAreas: string[], booking: Booking) {
     endTime.getTime() - startTime.getTime() <= 24 * 60 * 60 * 1000;
 
   if (!bookingIsLessThan24Hours || !bookingIsMoreThan30Min) {
-    return BookingResponse.DurationOutOfLimits;
+    return { status: BookingResponse.DurationOutOfLimits };
   }
 
   var addedAreas: string[] = [];
@@ -67,9 +62,9 @@ async function addBookingToArea(selectedAreas: string[], booking: Booking) {
   }
 
   if (addedAreas.length === selectedAreas.length) {
-    return BookingResponse.BookingSuccess;
+    return { status: BookingResponse.BookingSuccess };
   } else {
-    return BookingResponse.BookingFailure;
+    return { status: BookingResponse.BookingFailure };
   }
 }
 

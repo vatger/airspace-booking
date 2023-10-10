@@ -21,10 +21,7 @@ async function deleteBooking(id: string, area_name: string) {
   }
 }
 
-async function addBookingToArea(
-  selectedAreas: string[],
-  booking: Booking
-): Promise<void> {
+async function addBookingToArea(selectedAreas: string[], booking: Booking) {
   try {
     const response = await axios.patch("api/v1/bookableAreas/", {
       selectedAreas,
