@@ -1,0 +1,52 @@
+kind: pipeline
+type: docker
+name: build for staging
+
+trigger:
+  branch:
+    - dev
+    - develop
+  event:
+    - push
+
+steps:
+  - name: docker build
+    image: plugins/docker
+    settings:
+      dockerfile: Dockerfile
+      registry: hub.fsisp.de
+      repo: hub.fsisp.de/library/ts-template
+      cache_from: hub.fsisp.de/library/ts-template:dev
+      username:
+        from_secret: reg_username
+      password:
+        from_secret: reg_password
+      tags:
+        - dev
+        - "${DRONE_COMMIT:0:8}"
+
+---
+kind: pipeline
+type: docker
+name: build release
+
+trigger:
+  event:
+    - tag
+
+steps:
+  - name: docker build
+    image: plugins/docker
+    settings:
+      dockerfile: Dockerfile
+      auto_tag: true
+      registry: hub.fsisp.de
+      repo: hub.fsisp.de/library/ts-template
+      cache_from: hub.fsisp.de/library/ts-template:latest
+      username:
+        from_secret: reg_username
+      password:
+        from_secret: reg_password
+      tags:
+        - latest
+        - "${DRONE_COMMIT:0:8}"

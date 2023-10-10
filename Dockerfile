@@ -1,52 +1,49 @@
 # ################################################################
 # ###                        Base image                        ###
 # ################################################################
-FROM node:alpine as base
+FROM node:18-alpine as base
 
 WORKDIR /opt
 
-COPY . .
+ENV NODE_ENV production
 
-ARG NODE_ENV=production
-ENV NODE_ENV ${NODE_ENV}
+RUN apk update && \
+    apk upgrade && \
+    npm i npm@latest -g && \
+    chown node:node -R /opt
 
-# ################################################################
-# ###                     development image                    ###
-# ################################################################
+# && \
+# apk add --no-cache bash && \
+# apk add --no-cache git && \
 
-FROM base as development
+COPY --chown=node:node package*.json ./
 
-WORKDIR /opt/backend
-
-RUN npm install --quiet --unsafe-perm --no-progress --no-audit --include=dev
-
-CMD npm run run:dev
+USER node
 
 # ################################################################
-# ###                    backend build image                   ###
+# ###                        build image                       ###
 # ################################################################
 
-FROM base as backendbuild
+FROM base as build
 
-WORKDIR /opt/backend
+ENV NODE_ENV development
 
-RUN npm install --quiet --unsafe-perm --no-progress --no-audit --include=dev
+COPY --chown=node:node . .
 
-RUN npx tsc -p ./tsconfig.json
+RUN npm install && npm cache clean --force
+ENV PATH /opt/node_modules/.bin:$PATH
+
+RUN tsc -p ./tsconfig.node.json && \
+    resolve-tspaths --out "dist" && \
+    npm run spa-build
 
 # ################################################################
-# ###                   frontend build image                   ###
+# ###                      modules image                       ###
 # ################################################################
 
-FROM base as frontendbuild
+FROM base as modules
 
-WORKDIR /opt/frontend
-
-RUN npm i --include=dev
-
-ENV PATH /opt/frontend/node_modules:$PATH
-
-RUN npm run build
+RUN npm install && npm cache clean --force
 
 # ################################################################
 # ###                     production image                     ###
@@ -54,11 +51,7 @@ RUN npm run build
 
 FROM base as production
 
-COPY --from=frontendbuild --chown=node:node /opt/frontend/build /opt/frontend/build
-COPY --from=backendbuild --chown=node:node /opt/backend/dist/ /opt/backend/dist/
+COPY --from=build --chown=node:node /opt/dist ./dist
+COPY --from=modules --chown=node:node /opt/node_modules ./node_modules
 
-WORKDIR /opt/backend
-
-RUN npm install --quiet --unsafe-perm --no-progress --no-audit --omit=dev
-
-CMD npm run run:prod
+CMD node dist/backend/app.js
