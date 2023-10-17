@@ -7,7 +7,6 @@ import { TabMenu } from "primereact/tabmenu";
 
 import BookingDialog from "../components/BookingDialog";
 import BookingsDataTable from "../components/BookingsDataTable";
-import BookingAreaOverview from "../components/BookingAreaOverview";
 
 import { BookableArea } from "@/shared/interfaces/bookableArea.interface";
 import { FrontendBooking } from "../interfaces/FrontendBooking";
@@ -15,6 +14,7 @@ import { FrontendBooking } from "../interfaces/FrontendBooking";
 import bookableAreaService from "../services/bookableArea.service";
 
 import sortBookingsByStartEndDate from "../utils/bookingSorter.util";
+import OverviewBookingSchedule from "../components/OverviewBookingSchedule";
 
 const BookingPage = () => {
   const [bookableAreas, setBookableAreas] = useState<BookableArea[]>([]);
@@ -28,13 +28,22 @@ const BookingPage = () => {
     try {
       const data = await bookableAreaService.getBookableAreas();
       const convertedBookableAreaData: BookableArea[] = data.map(
-        (element: BookableArea) => ({
-          _id: element._id,
-          name: element.name,
-          minimum_fl: element.minimum_fl,
-          maximum_fl: element.maximum_fl,
-          bookings: element.bookings,
-        })
+        (element: BookableArea) => {
+          // Convert start_datetime within bookings to Date objects
+          const bookings = element.bookings.map((booking) => ({
+            ...booking,
+            start_datetime: new Date(booking.start_datetime), // Convert to Date
+            end_datetime: new Date(booking.end_datetime),
+          }));
+
+          return {
+            _id: element._id,
+            name: element.name,
+            minimum_fl: element.minimum_fl,
+            maximum_fl: element.maximum_fl,
+            bookings: bookings, // Updated bookings array
+          };
+        }
       );
       setBookableAreas(convertedBookableAreaData);
     } catch (error) {
@@ -125,7 +134,7 @@ const BookingPage = () => {
         onTabChange={(e) => setActiveIndex(e.index)}
       />
       {activeIndex === 0 && (
-        <BookingAreaOverview bookableAreas={bookableAreas} />
+        <OverviewBookingSchedule bookableAreas={bookableAreas} />
       )}
       {activeIndex === 1 && (
         <BookingsDataTable bookings={bookings} handleDelete={handleDelete} />
