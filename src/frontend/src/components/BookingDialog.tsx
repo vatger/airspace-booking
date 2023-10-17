@@ -179,6 +179,7 @@ const BookingDialog = ({
             showTime
             hourFormat="24"
             style={{ width: "18ch" }}
+            tooltip="Begin"
           />
           <span className="p-inputgroup-addon">
             <i className="pi pi-hourglass"></i>
@@ -188,6 +189,7 @@ const BookingDialog = ({
             value={selectedDuration}
             onChange={(e) => setSelectedDuration(e.value as Date)}
             style={{ width: "8ch" }}
+            tooltip="Duration"
           />
         </div>
       </div>
