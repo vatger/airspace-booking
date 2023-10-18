@@ -7,8 +7,8 @@ import { DataTable } from "primereact/datatable";
 import { formatDateOnly, formatTimeOnly } from "../utils/dateFormater.util";
 import { Timeline } from "primereact/timeline";
 
-import "../css/DataTable.css";
-import "../css/Overview.css";
+import "../style/DataTable.css";
+import "../style/Overview.css";
 import { Divider } from "primereact/divider";
 import { Card } from "primereact/card";
 

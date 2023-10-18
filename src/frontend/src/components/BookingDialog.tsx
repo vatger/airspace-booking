@@ -6,7 +6,10 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import { Divider } from "primereact/divider";
 
-import { createDateForDuration, createDateWithTime } from "../utils/date.util";
+import {
+  createDateForDuration,
+  createDateWithUtcTime,
+} from "../utils/date.util";
 
 import bookableAreaService from "../services/bookableArea.service";
 
@@ -21,13 +24,12 @@ const BookingDialog = ({
   bookableAreas: string[];
   onBookingCompleted: () => void;
 }) => {
-  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
-  const [selectedStartDate, setSelectedStartDate] = useState<Date>(
-    createDateWithTime(0, 17, 0)
-  );
-  const [selectedDuration, setSelectedDuration] = useState<Date>(
-    createDateForDuration(3)
-  );
+  const [BookingForm, setBookingForm] = useState({
+    selectedAreas: [] as string[],
+    start_datetime: createDateWithUtcTime(0, 17, 0),
+    duration: createDateForDuration(3),
+    booked_by: "VID Placeholder",
+  });
 
   const [validBooking, setValidBooking] = useState<boolean>(false);
 
@@ -59,18 +61,12 @@ const BookingDialog = ({
   };
 
   useEffect(() => {
-    if (
-      selectedAreas === null ||
-      selectedStartDate === null ||
-      selectedDuration === null
-    ) {
-      return;
-    }
-    const areaSelectionIsValid = selectedAreas.length !== 0;
+    const areaSelectionIsValid = BookingForm.selectedAreas.length !== 0;
 
-    const bookingIsMoreThan30Min = selectedDuration.getTime() >= 30 * 60 * 1000;
-    const bookingIsLessThan24Hours =
-      selectedDuration.getTime() <= 24 * 60 * 60 * 1000;
+    const bookingDurationInMinutes =
+      BookingForm.duration.getTime() / (1000 * 60);
+    const bookingIsMoreThan30Min = bookingDurationInMinutes >= 30;
+    const bookingIsLessThan24Hours = bookingDurationInMinutes <= 24 * 60;
 
     if (!bookingIsMoreThan30Min) {
       showToast(
@@ -101,23 +97,30 @@ const BookingDialog = ({
     } else {
       setValidBooking(false);
     }
-  }, [selectedAreas, selectedDuration, selectedStartDate]);
+  }, [BookingForm]);
+
+  const handleChange = (e) => {
+    setBookingForm({
+      ...BookingForm,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleBookingSubmitClick = () => {
     const endDate = new Date(
-      selectedStartDate.getTime() +
-        (selectedDuration.getTime() -
-          selectedDuration.getTimezoneOffset() * 60 * 1000)
+      BookingForm.start_datetime.getTime() +
+        (BookingForm.duration.getTime() -
+          BookingForm.duration.getTimezoneOffset() * 60 * 1000)
     );
 
     //@ts-ignore
     const booking: Booking = {
-      start_datetime: selectedStartDate,
+      start_datetime: BookingForm.start_datetime,
       end_datetime: endDate,
-      booked_by: "VID Placeholder",
+      booked_by: BookingForm.booked_by,
     };
     bookableAreaService
-      .addBookingToArea(selectedAreas, booking)
+      .addBookingToArea(BookingForm.selectedAreas, booking)
       .then((response) => {
         if (response.status === BookingResponse.BookingSuccess) {
           onBookingCompleted();
@@ -161,8 +164,9 @@ const BookingDialog = ({
             <i className="pi pi-box"></i>
           </span>
           <MultiSelect
-            value={selectedAreas}
-            onChange={(e) => setSelectedAreas(e.value)}
+            name="selectedAreas"
+            value={BookingForm.selectedAreas}
+            onChange={handleChange}
             options={bookableAreas}
             style={{ width: "10vw" }}
           />
@@ -173,8 +177,9 @@ const BookingDialog = ({
             <i className="pi pi-calendar"></i>
           </span>
           <Calendar
-            value={selectedStartDate}
-            onChange={(e) => setSelectedStartDate(e.value as Date)}
+            name="start_datetime"
+            value={BookingForm.start_datetime}
+            onChange={handleChange}
             dateFormat="dd.mm.yy"
             showTime
             hourFormat="24"
@@ -185,9 +190,10 @@ const BookingDialog = ({
             <i className="pi pi-hourglass"></i>
           </span>
           <Calendar
+            name="duration"
             timeOnly
-            value={selectedDuration}
-            onChange={(e) => setSelectedDuration(e.value as Date)}
+            value={BookingForm.duration}
+            onChange={handleChange}
             style={{ width: "8ch" }}
             tooltip="Duration"
           />

@@ -1,11 +1,11 @@
-const createDateWithTime = (
+const createDateWithUtcTime = (
   dayOffsetFromToday: number,
   hours: number,
   minutes: number
 ) => {
   const date = new Date();
 
-  date.setDate(date.getDate() + dayOffsetFromToday);
+  date.setUTCDate(date.getUTCDate() + dayOffsetFromToday);
   date.setUTCHours(hours);
   date.setUTCMinutes(minutes);
   date.setUTCSeconds(0);
@@ -22,4 +22,4 @@ const createDateForDuration = (hours: number) => {
   return date;
 };
 
-export { createDateForDuration, createDateWithTime };
+export { createDateForDuration, createDateWithUtcTime };
