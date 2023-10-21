@@ -7,7 +7,7 @@ export default function getConfig() {
   const port = Number(PORT);
 
   return {
-    port: Number.isNaN(port) ? 3000 : port,
+    port: Number.isNaN(port) ? 3030 : port,
     mongoUri: process.env.MONGO_URI || "",
   };
 }
