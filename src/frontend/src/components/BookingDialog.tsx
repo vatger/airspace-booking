@@ -13,17 +13,24 @@ import {
 
 import bookableAreaService from "../services/bookableArea.service";
 
-import { Booking } from "@/shared/interfaces/bookableArea.interface";
+import {
+  BookableArea,
+  Booking,
+} from "@/shared/interfaces/bookableArea.interface";
 
 import { BookingResponse } from "../../../shared/types/BookingResponse";
+import { bookingOverlapsWithExistingBookings } from "../../../shared/utils/bookingOverlap.util";
 
 const BookingDialog = ({
   bookableAreas,
   onBookingCompleted,
 }: {
-  bookableAreas: string[];
+  bookableAreas: BookableArea[];
   onBookingCompleted: () => void;
 }) => {
+  const bookableAreasName = bookableAreas.map((bookableArea: BookableArea) => {
+    return bookableArea.name;
+  });
   const [BookingForm, setBookingForm] = useState({
     selectedAreas: [] as string[],
     start_datetime: createDateWithUtcTime(0, 17, 0),
@@ -37,6 +44,7 @@ const BookingDialog = ({
   const toastMinBookingCooldown = useRef(false);
   const toastMaxBookingCooldown = useRef(false);
   const toastBackendResponse = useRef(false);
+  const toastBookingOverlapCooldown = useRef(false);
   const showToast = (
     severity: "success" | "error" | "warn" | "info",
     summary: string,
@@ -59,6 +67,12 @@ const BookingDialog = ({
       }, cooldown * 1000);
     }
   };
+
+  useEffect(() => {
+    // reset the cooldown of the overlap toast if the selectedAreas change.
+    // This allows showing a toast with updated conflicting areas while mainting the set cooldown if selectedAreas do not change
+    toastBookingOverlapCooldown.current = false;
+  }, [BookingForm.selectedAreas]);
 
   useEffect(() => {
     const areaSelectionIsValid = BookingForm.selectedAreas.length !== 0;
@@ -89,13 +103,50 @@ const BookingDialog = ({
     }
 
     if (
-      areaSelectionIsValid &&
-      bookingIsMoreThan30Min &&
-      bookingIsLessThan24Hours
+      !areaSelectionIsValid ||
+      !bookingIsMoreThan30Min ||
+      !bookingIsLessThan24Hours
     ) {
-      setValidBooking(true);
-    } else {
       setValidBooking(false);
+      return;
+    }
+
+    const endDate = new Date(
+      BookingForm.start_datetime.getTime() +
+        (BookingForm.duration.getTime() -
+          BookingForm.duration.getTimezoneOffset() * 60 * 1000)
+    );
+    //@ts-ignore
+    const booking: Booking = {
+      start_datetime: BookingForm.start_datetime,
+      end_datetime: endDate,
+      booked_by: BookingForm.booked_by,
+    };
+    const bookingOverlap: {
+      areaIsBooked: boolean;
+      conflictingAreas: string[];
+    } = bookingOverlapsWithExistingBookings(
+      booking,
+      BookingForm.selectedAreas,
+      bookableAreas
+    );
+
+    if (bookingOverlap.areaIsBooked) {
+      const conflictingAreasMessage =
+        "Booking overlaps with bookings on the following areas: \n";
+      const conflictingAreas = bookingOverlap.conflictingAreas.join(", ");
+
+      showToast(
+        "warn",
+        "Overlapping booking",
+        conflictingAreasMessage + conflictingAreas,
+        30,
+        toastBookingOverlapCooldown
+      );
+
+      setValidBooking(false);
+    } else {
+      setValidBooking(true);
     }
   }, [BookingForm]);
 
@@ -167,7 +218,7 @@ const BookingDialog = ({
             name="selectedAreas"
             value={BookingForm.selectedAreas}
             onChange={handleChange}
-            options={bookableAreas}
+            options={bookableAreasName}
             style={{ width: "10vw" }}
           />
         </div>

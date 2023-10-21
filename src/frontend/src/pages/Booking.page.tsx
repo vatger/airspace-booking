@@ -124,9 +124,7 @@ const BookingPage = () => {
         }}
       >
         <BookingDialog
-          bookableAreas={bookableAreas.map((bookableArea: BookableArea) => {
-            return bookableArea.name;
-          })}
+          bookableAreas={bookableAreas}
           onBookingCompleted={handleBookingCompleted}
         />
       </Dialog>
