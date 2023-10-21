@@ -14,7 +14,7 @@ const formatDateTime = (dateInput: Date | string) => {
   const formattedDate = `${day}.${month}.${year}`;
   const formattedTime = `${hours}:${minutes}`;
 
-  return `${formattedDate} ${formattedTime}`;
+  return `${formattedDate} ${formattedTime}z`;
 };
 
 const formatDateOnly = (dateInput: Date | string) => {
@@ -43,7 +43,7 @@ const formatTimeOnly = (dateInput: Date | string) => {
   const hours = String(date.getUTCHours()).padStart(2, "0");
   const minutes = String(date.getUTCMinutes()).padStart(2, "0");
 
-  const formattedTime = `${hours}:${minutes}`;
+  const formattedTime = `${hours}:${minutes}z`;
 
   return formattedTime;
 };
@@ -53,21 +53,18 @@ const formatEndTime = (startDate: Date, endDate: Date) => {
     startDate.getFullYear() === endDate.getFullYear() &&
     startDate.getMonth() === endDate.getMonth() &&
     startDate.getDay() === endDate.getDay();
-  if (datesAreOnSameDay) {
-    const hours = String(endDate.getUTCHours()).padStart(2, "0");
-    const minutes = String(endDate.getUTCMinutes()).padStart(2, "0");
 
-    const formattedTime = `${hours}:${minutes}`;
+  const month = String(endDate.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(endDate.getUTCDate()).padStart(2, "0");
+  const hours = String(endDate.getUTCHours()).padStart(2, "0");
+  const minutes = String(endDate.getUTCMinutes()).padStart(2, "0");
+
+  const formattedDate = `${day}.${month}`;
+  const formattedTime = `${hours}:${minutes}z`;
+
+  if (datesAreOnSameDay) {
     return formattedTime;
   } else {
-    const month = String(endDate.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(endDate.getUTCDate()).padStart(2, "0");
-    const hours = String(endDate.getUTCHours()).padStart(2, "0");
-    const minutes = String(endDate.getUTCMinutes()).padStart(2, "0");
-
-    const formattedDate = `${day}.${month}`;
-    const formattedTime = `${hours}:${minutes}`;
-
     return `${formattedDate} ${formattedTime}`;
   }
 };

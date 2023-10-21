@@ -4,7 +4,11 @@ import {
 } from "@/shared/interfaces/bookableArea.interface";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { formatDateOnly, formatTimeOnly } from "../utils/dateFormater.util";
+import {
+  formatDateOnly,
+  formatEndTime,
+  formatTimeOnly,
+} from "../utils/dateFormater.util";
 import { Timeline } from "primereact/timeline";
 
 import "../style/DataTable.css";
@@ -90,7 +94,10 @@ const Bookings = (bookings: Booking[], day: Date) => {
                 style={{ marginLeft: "-4.5vw" }}
                 value={[
                   `${formatTimeOnly(booking.start_datetime)}`,
-                  `${formatTimeOnly(booking.end_datetime)}`,
+                  `${formatEndTime(
+                    booking.start_datetime,
+                    booking.end_datetime
+                  )}`,
                 ]}
                 align="top"
                 content={(item) => item}
