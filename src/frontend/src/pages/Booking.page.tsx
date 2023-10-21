@@ -45,7 +45,12 @@ const BookingPage = () => {
           };
         }
       );
-      setBookableAreas(convertedBookableAreaData);
+
+      const sortedBookableAreaData = convertedBookableAreaData.sort((a, b) => {
+        return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+      });
+
+      setBookableAreas(sortedBookableAreaData);
     } catch (error) {
       console.error(error);
     }
