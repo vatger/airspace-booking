@@ -5,6 +5,10 @@ function bookingOverlapsWithExistingBookings(
   selectedAreas: string[],
   bookableAreas: BookableArea[]
 ) {
+  if (selectedAreas.length === 0 || bookableAreas.length === 0) {
+    return { areaIsBooked: false, conflictingAreas: [] };
+  }
+
   let areaIsBooked = false;
   let conflictingAreas: string[] = [];
 

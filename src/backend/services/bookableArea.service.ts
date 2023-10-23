@@ -8,7 +8,7 @@ import bookableAreaModel, {
 import { consolidateBookings } from "../utils/bookings.util";
 import euupService from "./euup.service";
 import { BookingResponse } from "@/shared/types/BookingResponse";
-
+import { bookingOverlapsWithExistingBookings } from "@/shared/utils/bookingOverlap.util";
 async function getBookableAreas() {
   try {
     const bookableAreas: BookableAreaDocument[] = await bookableAreaModel
@@ -33,20 +33,61 @@ async function addBookableArea(bookableArea: BookableArea) {
   }
 }
 
-async function addBookingToArea(selectedAreas: string[], booking: Booking) {
-  const startTime = new Date(booking.start_datetime);
-  const endTime = new Date(booking.end_datetime);
+async function addBookingToArea(selectedAreas: string[], bookingData: Booking) {
+  const booking: Booking = {
+    ...bookingData,
+    start_datetime: new Date(bookingData.start_datetime),
+    end_datetime: new Date(bookingData.end_datetime),
+  };
 
+  // Check if booking times are valid
   const bookingIsMoreThan30Min =
-    endTime.getTime() - startTime.getTime() >= 30 * 60 * 1000;
+    booking.end_datetime.getTime() - booking.start_datetime.getTime() >=
+    30 * 60 * 1000;
   const bookingIsLessThan24Hours =
-    endTime.getTime() - startTime.getTime() <= 24 * 60 * 60 * 1000;
+    booking.end_datetime.getTime() - booking.start_datetime.getTime() <=
+    24 * 60 * 60 * 1000;
 
   if (!bookingIsLessThan24Hours || !bookingIsMoreThan30Min) {
     return { status: BookingResponse.DurationOutOfLimits };
   }
 
-  var addedAreas: string[] = [];
+  const existingAreas: BookableArea[] = (await bookableAreaModel.find()).map(
+    (element: BookableArea) => {
+      // Convert start_datetime within bookings to Date objects
+      const bookings = element.bookings.map((bookingElement) => ({
+        ...bookingElement,
+        start_datetime: new Date(bookingElement.start_datetime), // Convert to Date
+        end_datetime: new Date(bookingElement.end_datetime),
+      }));
+
+      return {
+        _id: element._id,
+        name: element.name,
+        minimum_fl: element.minimum_fl,
+        maximum_fl: element.maximum_fl,
+        bookings: bookings, // Updated bookings array
+      };
+    }
+  );
+
+  const bookingOverlap: {
+    areaIsBooked: boolean;
+    conflictingAreas: string[];
+  } = bookingOverlapsWithExistingBookings(
+    booking,
+    selectedAreas,
+    existingAreas
+  );
+  console.log(bookingOverlap);
+  if (bookingOverlap.areaIsBooked) {
+    return {
+      status: BookingResponse.OverlapOfBookings,
+      conflictingAreas: bookingOverlap.conflictingAreas,
+    };
+  }
+
+  var addedAreaCount: number = 0;
 
   for (const selectedArea of selectedAreas) {
     const existingArea = await bookableAreaModel.findOne({
@@ -57,11 +98,11 @@ async function addBookingToArea(selectedAreas: string[], booking: Booking) {
       existingArea.bookings.push(booking);
       await existingArea.save();
 
-      addedAreas.push(existingArea.name);
+      addedAreaCount += 1;
     }
   }
 
-  if (addedAreas.length === selectedAreas.length) {
+  if (addedAreaCount === selectedAreas.length) {
     return { status: BookingResponse.BookingSuccess };
   } else {
     return { status: BookingResponse.BookingFailure };

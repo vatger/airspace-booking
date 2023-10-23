@@ -74,6 +74,20 @@ const BookingDialog = ({
     toastBookingOverlapCooldown.current = false;
   }, [BookingForm.selectedAreas]);
 
+  const showBookingOverlapMessage = (conflictingAreas: string[]) => {
+    const conflictingAreasMessage =
+      "Booking overlaps with bookings on the following areas: \n";
+    const conflictingAreasText = conflictingAreas.join(", ");
+
+    showToast(
+      "warn",
+      "Overlapping booking",
+      conflictingAreasMessage + conflictingAreasText,
+      30,
+      toastBookingOverlapCooldown
+    );
+  };
+
   useEffect(() => {
     const areaSelectionIsValid = BookingForm.selectedAreas.length !== 0;
 
@@ -110,7 +124,7 @@ const BookingDialog = ({
       setValidBooking(false);
       return;
     }
-
+    setValidBooking(true);
     const endDate = new Date(
       BookingForm.start_datetime.getTime() +
         (BookingForm.duration.getTime() -
@@ -132,18 +146,7 @@ const BookingDialog = ({
     );
 
     if (bookingOverlap.areaIsBooked) {
-      const conflictingAreasMessage =
-        "Booking overlaps with bookings on the following areas: \n";
-      const conflictingAreas = bookingOverlap.conflictingAreas.join(", ");
-
-      showToast(
-        "warn",
-        "Overlapping booking",
-        conflictingAreasMessage + conflictingAreas,
-        30,
-        toastBookingOverlapCooldown
-      );
-
+      showBookingOverlapMessage(bookingOverlap.conflictingAreas);
       setValidBooking(false);
     } else {
       setValidBooking(true);
@@ -191,6 +194,8 @@ const BookingDialog = ({
             30,
             toastBackendResponse
           );
+        } else if (response.status === BookingResponse.OverlapOfBookings) {
+          showBookingOverlapMessage(response.conflictingAreas);
         }
       })
       .catch((error) => {
