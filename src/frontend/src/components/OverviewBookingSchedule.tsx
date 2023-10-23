@@ -49,6 +49,7 @@ const OverviewBookingSchedule = ({
         />
         {days.map((day: Date) => (
           <Column
+            key={"Column: " + day.toISOString()}
             align={"center"}
             style={{ margin: "0,0,0,0" }}
             header={formatDateOnly(day)}
