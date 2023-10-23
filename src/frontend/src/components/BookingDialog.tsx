@@ -60,7 +60,7 @@ const BookingDialog = ({
         life: 3000,
       });
 
-      // disable toast and enable after 30 seconds
+      // disable toast and enable after 30 seconds again
       cooldownRef.current = true;
       setTimeout(() => {
         cooldownRef.current = false;

@@ -115,12 +115,10 @@ const Bookings = (bookings: Booking[], day: Date) => {
 const getBookingsForDay = (bookings: Booking[], day: Date) => {
   // Filter the bookings that have a date that matches 'day'
   return bookings.filter((booking) => {
-    // Assuming 'start_datetime' is the relevant property to compare
     return isSameDay(new Date(booking.start_datetime), day);
   });
 };
 
-// Helper function to compare if two dates are on the same day
 const isSameDay = (date1: Date, date2: Date) => {
   return (
     date1.getFullYear() === date2.getFullYear() &&
