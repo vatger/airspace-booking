@@ -176,26 +176,38 @@ const BookingDialog = ({
     bookableAreaService
       .addBookingToArea(BookingForm.selectedAreas, booking)
       .then((response) => {
-        if (response.status === BookingResponse.BookingSuccess) {
-          onBookingCompleted();
-        } else if (response.status === BookingResponse.BookingFailure) {
-          showToast(
-            "error",
-            "Could not submit booking",
-            "",
-            30,
-            toastBackendResponse
-          );
-        } else if (response.status === BookingResponse.DurationOutOfLimits) {
-          showToast(
-            "warn",
-            "Could not submit booking",
-            "A booking must not be longer than 24 hours",
-            30,
-            toastBackendResponse
-          );
-        } else if (response.status === BookingResponse.OverlapOfBookings) {
-          showBookingOverlapMessage(response.conflictingAreas);
+        switch (response.status) {
+          case BookingResponse.BookingSuccess:
+            onBookingCompleted();
+            break;
+
+          case BookingResponse.BookingFailure:
+            showToast(
+              "error",
+              "Could not submit booking",
+              "",
+              30,
+              toastBackendResponse
+            );
+            break;
+
+          case BookingResponse.DurationOutOfLimits:
+            showToast(
+              "warn",
+              "Could not submit booking",
+              "A booking must not be longer than 24 hours and must be longer than 30min",
+              30,
+              toastBackendResponse
+            );
+            break;
+
+          case BookingResponse.OverlapOfBookings:
+            showBookingOverlapMessage(response.conflictingAreas);
+            break;
+
+          default:
+            console.error("Unhandled server response: ", response);
+            break;
         }
       })
       .catch((error) => {
