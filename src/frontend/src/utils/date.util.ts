@@ -1,7 +1,7 @@
 const createDateWithUtcTime = (
   dayOffsetFromToday: number,
   hours: number,
-  minutes: number
+  minutes: number,
 ) => {
   const date = new Date();
 

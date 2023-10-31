@@ -42,7 +42,7 @@ const BookingPage = () => {
       const convertedBookableAreaData: BookableArea[] = data.map(
         (element: BookableArea) => {
           // Convert start_datetime within bookings to Date objects
-          const bookings = element.bookings.map((booking) => ({
+          const bookingsCasted = element.bookings.map((booking) => ({
             ...booking,
             start_datetime: new Date(booking.start_datetime), // Convert to Date
             end_datetime: new Date(booking.end_datetime),
@@ -53,7 +53,7 @@ const BookingPage = () => {
             name: element.name,
             minimum_fl: element.minimum_fl,
             maximum_fl: element.maximum_fl,
-            bookings: bookings, // Updated bookings array
+            bookings: bookingsCasted, // Updated bookings array
           };
         },
       );
@@ -90,11 +90,11 @@ const BookingPage = () => {
     const allBookings: FrontendBooking[] = [];
 
     bookableAreas.forEach((area: BookableArea) => {
-      const area_name = area.name;
+      const areaName = area.name;
       for (const booking of area.bookings) {
         const frontendBooking: FrontendBooking = {
           _id: booking._id,
-          area_name: area_name,
+          area_name: areaName,
           start_datetime: booking.start_datetime,
           end_datetime: booking.end_datetime,
           booked_by: booking.booked_by,

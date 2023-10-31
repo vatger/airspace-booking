@@ -1,25 +1,26 @@
-import { MutableRefObject, useEffect, useRef, useState } from "react";
 
-import { MultiSelect } from "primereact/multiselect";
-import { Calendar } from "primereact/calendar";
-import { Button } from "primereact/button";
-import { Toast } from "primereact/toast";
-import { Divider } from "primereact/divider";
+import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
+import { Divider } from 'primereact/divider';
+import { MultiSelect } from 'primereact/multiselect';
+import { Toast } from 'primereact/toast';
+import { MutableRefObject, useEffect, useRef, useState } from 'react';
 
+
+
+
+import { BookingResponse } from '../../../shared/types/BookingResponse';
+import { bookingOverlapsWithExistingBookings } from '../../../shared/utils/bookingOverlap.util';
+import bookableAreaService from '../services/bookableArea.service';
 import {
   createDateForDuration,
   createDateWithUtcTime,
-} from "../utils/date.util";
-
-import bookableAreaService from "../services/bookableArea.service";
+} from '../utils/date.util';
 
 import {
   BookableArea,
   Booking,
-} from "@/shared/interfaces/bookableArea.interface";
-
-import { BookingResponse } from "../../../shared/types/BookingResponse";
-import { bookingOverlapsWithExistingBookings } from "../../../shared/utils/bookingOverlap.util";
+} from '@/shared/interfaces/bookableArea.interface';
 
 const BookingDialog = ({
   bookableAreas,
@@ -35,7 +36,7 @@ const BookingDialog = ({
     selectedAreas: [] as string[],
     start_datetime: createDateWithUtcTime(0, 17, 0),
     duration: createDateForDuration(3),
-    booked_by: "VID Placeholder",
+    booked_by: 'VID Placeholder',
   });
 
   const [validBooking, setValidBooking] = useState<boolean>(false);
@@ -46,11 +47,11 @@ const BookingDialog = ({
   const toastBackendResponse = useRef(false);
   const toastBookingOverlapCooldown = useRef(false);
   const showToast = (
-    severity: "success" | "error" | "warn" | "info",
+    severity: 'success' | 'error' | 'warn' | 'info',
     summary: string,
     message: string,
     cooldown: number,
-    cooldownRef: MutableRefObject<boolean>
+    cooldownRef: MutableRefObject<boolean>,
   ) => {
     if (cooldownRef.current === false) {
       toast.current?.show({
@@ -76,15 +77,15 @@ const BookingDialog = ({
 
   const showBookingOverlapMessage = (conflictingAreas: string[]) => {
     const conflictingAreasMessage =
-      "Booking overlaps with bookings on the following areas: \n";
-    const conflictingAreasText = conflictingAreas.join(", ");
+      'Booking overlaps with bookings on the following areas: \n';
+    const conflictingAreasText = conflictingAreas.join(', ');
 
     showToast(
-      "warn",
-      "Overlapping booking",
+      'warn',
+      'Overlapping booking',
       conflictingAreasMessage + conflictingAreasText,
       30,
-      toastBookingOverlapCooldown
+      toastBookingOverlapCooldown,
     );
   };
 
@@ -98,21 +99,21 @@ const BookingDialog = ({
 
     if (!bookingIsMoreThan30Min) {
       showToast(
-        "warn",
-        "Booking minimum duration not reached",
-        "A booking must have a minimum duration of 30 minutes",
+        'warn',
+        'Booking minimum duration not reached',
+        'A booking must have a minimum duration of 30 minutes',
         30,
-        toastMinBookingCooldown
+        toastMinBookingCooldown,
       );
     }
 
     if (!bookingIsLessThan24Hours) {
       showToast(
-        "warn",
-        "Maximum booking duration reached",
-        "A booking must not be longer than 24 hours",
+        'warn',
+        'Maximum booking duration reached',
+        'A booking must not be longer than 24 hours',
         30,
-        toastMaxBookingCooldown
+        toastMaxBookingCooldown,
       );
     }
 
@@ -128,7 +129,7 @@ const BookingDialog = ({
     const endDate = new Date(
       BookingForm.start_datetime.getTime() +
         (BookingForm.duration.getTime() -
-          BookingForm.duration.getTimezoneOffset() * 60 * 1000)
+          BookingForm.duration.getTimezoneOffset() * 60 * 1000),
     );
     //@ts-ignore
     const booking: Booking = {
@@ -142,7 +143,7 @@ const BookingDialog = ({
     } = bookingOverlapsWithExistingBookings(
       booking,
       BookingForm.selectedAreas,
-      bookableAreas
+      bookableAreas,
     );
 
     if (bookingOverlap.areaIsBooked) {
@@ -164,7 +165,7 @@ const BookingDialog = ({
     const endDate = new Date(
       BookingForm.start_datetime.getTime() +
         (BookingForm.duration.getTime() -
-          BookingForm.duration.getTimezoneOffset() * 60 * 1000)
+          BookingForm.duration.getTimezoneOffset() * 60 * 1000),
     );
 
     //@ts-ignore
@@ -183,21 +184,21 @@ const BookingDialog = ({
 
           case BookingResponse.BookingFailure:
             showToast(
-              "error",
-              "Could not submit booking",
-              "",
+              'error',
+              'Could not submit booking',
+              '',
               30,
-              toastBackendResponse
+              toastBackendResponse,
             );
             break;
 
           case BookingResponse.DurationOutOfLimits:
             showToast(
-              "warn",
-              "Could not submit booking",
-              "A booking must not be longer than 24 hours and must be longer than 30min",
+              'warn',
+              'Could not submit booking',
+              'A booking must not be longer than 24 hours and must be longer than 30min',
               30,
-              toastBackendResponse
+              toastBackendResponse,
             );
             break;
 
@@ -206,7 +207,7 @@ const BookingDialog = ({
             break;
 
           default:
-            console.error("Unhandled server response: ", response);
+            console.error('Unhandled server response: ', response);
             break;
         }
       })
@@ -224,7 +225,7 @@ const BookingDialog = ({
       <Toast ref={toast} />
       <div
         style={{
-          display: "flex",
+          display: 'flex',
         }}
       >
         <div className="p-inputgroup" style={boxStyle}>
@@ -236,7 +237,7 @@ const BookingDialog = ({
             value={BookingForm.selectedAreas}
             onChange={handleChange}
             options={bookableAreasName}
-            style={{ width: "10vw" }}
+            style={{ width: '10vw' }}
           />
         </div>
         <Divider layout="vertical" />
@@ -251,7 +252,7 @@ const BookingDialog = ({
             dateFormat="dd.mm.yy"
             showTime
             hourFormat="24"
-            style={{ width: "18ch" }}
+            style={{ width: '18ch' }}
             tooltip="Begin"
           />
           <span className="p-inputgroup-addon">
@@ -262,7 +263,7 @@ const BookingDialog = ({
             timeOnly
             value={BookingForm.duration}
             onChange={handleChange}
-            style={{ width: "8ch" }}
+            style={{ width: '8ch' }}
             tooltip="Duration"
           />
         </div>
@@ -271,11 +272,11 @@ const BookingDialog = ({
       <div className="p-inputgroup">
         <Button
           label="Book Area"
-          severity={validBooking === true ? "success" : "danger"}
-          icon={validBooking === true ? "pi pi-check" : "pi pi-times"}
+          severity={validBooking === true ? 'success' : 'danger'}
+          icon={validBooking === true ? 'pi pi-check' : 'pi pi-times'}
           disabled={!validBooking}
           onClick={handleBookingSubmitClick}
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
         />
       </div>
     </>
