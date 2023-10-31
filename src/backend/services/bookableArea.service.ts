@@ -1,14 +1,16 @@
+import bookableAreaModel, {
+  BookableAreaDocument,
+} from '../models/bookableArea.model';
+import { consolidateBookings } from '../utils/bookings.util';
+
+import euupService from './euup.service';
+
 import {
   BookableArea,
   Booking,
-} from "@/shared/interfaces/bookableArea.interface";
-import bookableAreaModel, {
-  BookableAreaDocument,
-} from "../models/bookableArea.model";
-import { consolidateBookings } from "../utils/bookings.util";
-import euupService from "./euup.service";
-import { BookingResponse } from "@/shared/types/BookingResponse";
-import { bookingOverlapsWithExistingBookings } from "@/shared/utils/bookingOverlap.util";
+} from '@/shared/interfaces/bookableArea.interface';
+import { BookingResponse } from '@/shared/types/BookingResponse';
+import { bookingOverlapsWithExistingBookings } from '@/shared/utils/bookingOverlap.util';
 async function getBookableAreas() {
   try {
     const bookableAreas: BookableAreaDocument[] = await bookableAreaModel
@@ -16,20 +18,21 @@ async function getBookableAreas() {
       .exec();
     return bookableAreas;
   } catch (error) {
-    throw error;
+    console.error(error);
   }
+
 }
 
 async function addBookableArea(bookableArea: BookableArea) {
   const bookableAreaDocument: BookableAreaDocument = new bookableAreaModel(
-    bookableArea
+    bookableArea,
   );
 
   try {
     await bookableAreaDocument.save();
     return bookableAreaDocument;
   } catch (error) {
-    throw error;
+    console.error(error);
   }
 }
 
@@ -68,7 +71,7 @@ async function addBookingToArea(selectedAreas: string[], bookingData: Booking) {
         maximum_fl: element.maximum_fl,
         bookings: bookings, // Updated bookings array
       };
-    }
+    },
   );
 
   const bookingOverlap: {
@@ -77,7 +80,7 @@ async function addBookingToArea(selectedAreas: string[], bookingData: Booking) {
   } = bookingOverlapsWithExistingBookings(
     booking,
     selectedAreas,
-    existingAreas
+    existingAreas,
   );
   console.log(bookingOverlap);
   if (bookingOverlap.areaIsBooked) {
@@ -87,7 +90,7 @@ async function addBookingToArea(selectedAreas: string[], bookingData: Booking) {
     };
   }
 
-  var addedAreaCount: number = 0;
+  let addedAreaCount = 0;
 
   for (const selectedArea of selectedAreas) {
     const existingArea = await bookableAreaModel.findOne({
@@ -111,6 +114,11 @@ async function addBookingToArea(selectedAreas: string[], bookingData: Booking) {
 
 async function addBookedAreasToEuupData() {
   const bookableAreas = await getBookableAreas();
+
+  if (bookableAreas === undefined) {
+    return;
+  }
+
   for (const bookableArea of bookableAreas) {
     if (bookableArea.bookings.length === 0) {
       continue;
@@ -124,14 +132,14 @@ async function addBookedAreasToEuupData() {
       bookableArea.minimum_fl,
       bookableArea.maximum_fl,
       consolidatedBookings[0].start_datetime,
-      consolidatedBookings[0].end_datetime
+      consolidatedBookings[0].end_datetime,
     );
   }
 }
 
 export async function deleteBookingFromArea(
   bookingId: string,
-  area_name: string
+  area_name: string,
 ) {
   try {
     // Find the bookableArea by name
@@ -140,7 +148,7 @@ export async function deleteBookingFromArea(
     if (bookableArea) {
       // Find the index of the booking with the specified ID in the bookings array
       const bookingIndex = bookableArea.bookings.findIndex(
-        (booking) => booking._id?.toString() === bookingId
+        (booking) => booking._id?.toString() === bookingId,
       );
 
       if (bookingIndex !== -1) {
