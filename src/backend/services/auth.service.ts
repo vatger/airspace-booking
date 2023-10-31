@@ -79,6 +79,7 @@ export async function authUser(code: string): Promise<string> {
 
 export async function getUserFromToken(token: string): Promise<UserDocument> {
   try {
+    console.log('Token is:', token);
     const tokendata = jwt.verify(token, config().jwtSecret, {});
 
     if (typeof tokendata == 'string') {
