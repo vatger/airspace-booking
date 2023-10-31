@@ -1,18 +1,15 @@
+import bodyparser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import cron from 'node-cron';
 
-import bodyparser from 'body-parser';
-import cookieParser from 'cookie-parser';
 
-import getConfig from "./config";
-import router from "./router";
-import mongoose from "mongoose";
-import cron from "node-cron";
-
-import bookableAreaService from "./services/bookableArea.service";
-import euupService from "./services/euup.service";
+import getConfig from './config';
+import router from './router';
+import bookableAreaService from './services/bookableArea.service';
+import euupService from './services/euup.service';
 
 const { port } = getConfig();
 
@@ -24,7 +21,7 @@ app.use(express.json());
 app.use(bodyparser.json());
 app.use(cookieParser());
 
-app.use("/api/v1", router.router);
+app.use('/api/v1', router.router);
 
 const frontendRoot = '/opt/dist/frontend';
 app.use(express.static(frontendRoot));
