@@ -9,13 +9,14 @@ export async function authMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  const token = `${req?.cookies?.airspaceBooking_token}`;
+  const token = `${req?.cookies?.areaBooking_token}`;
 
   if (!token) {
     return next(new APIError('token cookie must be set!', null, 400));
   }
 
   try {
+    console.log(req.cookies);
     req.user = await authService.getUserFromToken(token);
   } catch (error) {
     return next(new APIError('Unauthorized', null, 401));

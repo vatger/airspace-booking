@@ -17,7 +17,7 @@ export async function authUser(
 
     const response = await authService.authUser(code.toString());
 
-    res.cookie('airspaceBooking_token', response, {
+    res.cookie('areaBooking_token', response, {
       secure: false,
       httpOnly: true,
     });
@@ -56,7 +56,7 @@ export async function logoutUser(
   res: Response,
   // next: NextFunction,
 ) {
-  res.clearCookie('airspaceBooking_token');
+  res.clearCookie('areaBooking_token');
   res.json({ success: true });
 }
 
