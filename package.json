@@ -82,7 +82,7 @@
       ]
     },
     "rules": {
-      "no-console": "warn",
+      "no-console": "off",
       "import/extensions": "off",
       "eol-last": [
         "error",

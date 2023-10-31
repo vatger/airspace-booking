@@ -1,13 +1,15 @@
-import axios from "axios";
-import { euupModel, EuupDocument, areaModel } from "../models/euup.model";
-import bookableAreaService from "./bookableArea.service";
+import axios from 'axios';
 
-async function getEuupData(): Promise<EuupDocument | null> {
+import { euupModel, EuupDocument, areaModel } from '../models/euup.model';
+
+import bookableAreaService from './bookableArea.service';
+
+async function getEuupData(): Promise<EuupDocument | null | undefined> {
   try {
     const euup: EuupDocument | null = await euupModel.findOne().exec();
     return euup || null;
-  } catch (e) {
-    throw e;
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -17,7 +19,7 @@ async function clearEuupData() {
     const result = await euupModel.deleteMany({});
 
     console.log(
-      `Removed ${result.deletedCount} documents from the 'euup' collection.`
+      `Removed ${result.deletedCount} documents from the 'euup' collection.`,
     );
   } catch (e) {
     console.error("Error clearing the 'areas' collection:", e);
@@ -30,14 +32,14 @@ async function addArea(
   minimum_fl: number,
   maximum_fl: number,
   start_datetime: Date,
-  end_datetime: Date
+  end_datetime: Date,
 ) {
   try {
     // Find the single object in the collection
     const euupDataObject = await euupModel.findOne();
 
     if (!euupDataObject) {
-      console.error("The EUUP data object could not be found");
+      console.error('The EUUP data object could not be found');
     }
 
     // Create a new area with the provided data
@@ -55,13 +57,13 @@ async function addArea(
     // Save the updated object back to the database
     await euupDataObject?.save();
   } catch (error) {
-    console.error("Error adding area to the EUUP data object:", error);
+    console.error('Error adding area to the EUUP data object:', error);
   }
 }
 
 async function updatedCachedEuupData() {
   try {
-    const data = (await axios.get("https://lara.vatsim.pt/api/areas/ED/")).data;
+    const data = (await axios.get('https://lara.vatsim.pt/api/areas/ED/')).data;
 
     const euupData = new euupModel({
       notice_info: {
@@ -76,10 +78,14 @@ async function updatedCachedEuupData() {
     // Fetch the bookableAreas collection from the database
     const bookableAreas = await bookableAreaService.getBookableAreas();
 
+    if (bookableAreas === undefined) {
+      return;
+    }
+
     for (const areaData of data.areas) {
       // check if the area is bookable, only cache non-bookable areas
       const isBookableArea = bookableAreas.find(
-        (bookableArea) => bookableArea.name === areaData.name
+        (bookableArea) => bookableArea.name === areaData.name,
       );
 
       if (!isBookableArea) {
@@ -98,10 +104,9 @@ async function updatedCachedEuupData() {
     }
     // Save the updated euupData with the areas
     await euupData.save();
-    console.log("Updated cached EUUP data");
-  } catch (e) {
-    console.log("Error getting EUUP data or updating areas", e);
-    throw e;
+    console.log('Updated cached EUUP data');
+  } catch (error) {
+    console.log('Error getting EUUP data or updating areas', error);
   }
 }
 
