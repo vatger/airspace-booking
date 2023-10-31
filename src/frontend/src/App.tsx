@@ -11,14 +11,14 @@ import 'primeicons/primeicons.css';
 export function App() {
   return (
     <>
-    <AuthProvider>
       <Header />
       <Router>
-        <Routes>
-          <Route path="*" element={<BookingPage />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="*" element={<BookingPage />} />
+          </Routes>
+        </AuthProvider>
       </Router>
-    </AuthProvider>
     </>
   );
 }
