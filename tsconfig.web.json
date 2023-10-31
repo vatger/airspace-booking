@@ -3,7 +3,7 @@
     "include": [
       "src/frontend/**/*",
       "src/shared/**/*"
-    ],
+, "src/backend/utils/nestedobjects.utils.ts"    ],
     "exclude": [
       "src/frontend/vite.config.ts"
     ],
