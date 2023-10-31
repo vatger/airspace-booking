@@ -1,28 +1,40 @@
-import { useEffect, useState } from "react";
+import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
+import { TabMenu } from 'primereact/tabmenu';
+import { Toolbar } from 'primereact/toolbar';
+import { useContext, useEffect, useState } from 'react';
 
-import { Toolbar } from "primereact/toolbar";
-import { Button } from "primereact/button";
-import { Dialog } from "primereact/dialog";
-import { TabMenu } from "primereact/tabmenu";
+import BookingDialog from '../components/BookingDialog';
+import BookingsDataTable from '../components/BookingsDataTable';
+import OverviewBookingSchedule from '../components/OverviewBookingSchedule';
+import AuthContext from '../contexts/AuthProvider';
+import { FrontendBooking } from '../interfaces/FrontendBooking';
+import AuthService from '../services/auth.service';
+import bookableAreaService from '../services/bookableArea.service';
+import sortBookingsByStartEndDate from '../utils/bookingSorter.util';
 
-import BookingDialog from "../components/BookingDialog";
-import BookingsDataTable from "../components/BookingsDataTable";
 
-import { BookableArea } from "@/shared/interfaces/bookableArea.interface";
-import { FrontendBooking } from "../interfaces/FrontendBooking";
+import { BookableArea } from '@/shared/interfaces/bookableArea.interface';
+import { FrontendSettings } from '@/shared/interfaces/config.interface';
+import User from '@/shared/interfaces/user.interface';
 
-import bookableAreaService from "../services/bookableArea.service";
-
-import sortBookingsByStartEndDate from "../utils/bookingSorter.util";
-import OverviewBookingSchedule from "../components/OverviewBookingSchedule";
 
 const BookingPage = () => {
+  const [config, setConfig] = useState<FrontendSettings>();
   const [bookableAreas, setBookableAreas] = useState<BookableArea[]>([]);
   const [bookings, setBookings] = useState<FrontendBooking[]>([]);
+  const [user, setUser] = useState<User>();
+  const auth: any = useContext(AuthContext);
   const [showNewBookingDialog, setShowNewBookingDialog] =
     useState<boolean>(false);
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
+
+  async function logout() {
+    await AuthService.logout();
+
+    window.location.reload();
+  }
 
   const fetchAndSetBookings = async () => {
     try {
@@ -43,11 +55,11 @@ const BookingPage = () => {
             maximum_fl: element.maximum_fl,
             bookings: bookings, // Updated bookings array
           };
-        }
+        },
       );
 
       const sortedBookableAreaData = convertedBookableAreaData.sort((a, b) => {
-        return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+        return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
       });
 
       setBookableAreas(sortedBookableAreaData);
@@ -59,6 +71,20 @@ const BookingPage = () => {
   useEffect(() => {
     fetchAndSetBookings();
   }, []);
+
+  useEffect(() => {
+    setUser(auth.auth.user);
+
+    AuthService.getConfig()
+      .then((data) => {
+        setConfig(data);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+    return () => { };
+  }, [auth]);
+
 
   useEffect(() => {
     const allBookings: FrontendBooking[] = [];
@@ -82,13 +108,50 @@ const BookingPage = () => {
     setBookings(bookingsSorted);
   }, [bookableAreas]);
 
+  const redirectToVatsimAuth = () => {
+    const authUrl = [
+      config?.vatsimAuthUrl,
+      '/oauth/authorize',
+      '?',
+      'client_id=',
+      config?.clientId,
+      '&',
+      'redirect_uri=',
+      window.location.protocol,
+      '//',
+      window.location.host,
+      '/api/v1/auth/login',
+      '&',
+      'response_type=code',
+      '&',
+      'scope=full_name+vatsim_details',
+      '&',
+      'required_scopes=full_name+vatsim_details',
+      '&',
+      'approval_prompt=auto',
+    ].join('');
+    window.location.replace(authUrl);
+  };
+
   const startContent = [
     <Button
-      key={"Toolbar-StartContent-Button"}
+      key={'Toolbar-StartContent-Button'}
       label="New"
       icon="pi pi-plus"
       className="mr-2"
       onClick={() => setShowNewBookingDialog(true)}
+    />,
+  ];
+
+  const endContent = [
+    <div className={`${!auth.auth.user ? 'hidden' : ''} ml-2`}>
+      {user?.apidata.cid}
+    </div>,
+    <Button
+      key={'Toolbar-EndContent-Button'}
+      label="Login"
+      className="mr-2"
+      onClick={() => redirectToVatsimAuth()}
     />,
   ];
 
@@ -99,12 +162,12 @@ const BookingPage = () => {
         prevBookableAreas.map((bookableArea) => {
           if (bookableArea.name === rowData.area_name) {
             const updatedBookings = bookableArea.bookings.filter(
-              (booking) => booking._id !== rowData._id
+              (booking) => booking._id !== rowData._id,
             );
             return { ...bookableArea, bookings: updatedBookings };
           }
           return bookableArea;
-        })
+        }),
       );
     }
   };
@@ -116,7 +179,7 @@ const BookingPage = () => {
 
   return (
     <div className="p-grid p-dir-col">
-      <Toolbar start={startContent} />
+      <Toolbar start={startContent} end={endContent} />
       <Dialog
         visible={showNewBookingDialog}
         onHide={() => {
@@ -130,8 +193,8 @@ const BookingPage = () => {
       </Dialog>
       <TabMenu
         model={[
-          { label: "Overview", icon: "pi pi-fw pi-align-left" },
-          { label: "All Bookings", icon: "pi pi-fw pi-bars" },
+          { label: 'Overview', icon: 'pi pi-fw pi-align-left' },
+          { label: 'All Bookings', icon: 'pi pi-fw pi-bars' },
         ]}
         activeIndex={activeIndex}
         onTabChange={(e) => setActiveIndex(e.index)}

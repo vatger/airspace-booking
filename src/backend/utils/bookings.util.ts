@@ -1,4 +1,4 @@
-import { Booking } from "@/shared/interfaces/bookableArea.interface";
+import { Booking } from '@/shared/interfaces/bookableArea.interface';
 
 // Function to check for and consolidate overlapping bookings
 export function consolidateBookings(bookings: Booking[]): Booking[] {
@@ -23,8 +23,8 @@ export function consolidateBookings(bookings: Booking[]): Booking[] {
       lastConsolidatedBooking.end_datetime = new Date(
         Math.max(
           currentBooking.end_datetime.getTime(),
-          lastConsolidatedBooking.end_datetime.getTime()
-        )
+          lastConsolidatedBooking.end_datetime.getTime(),
+        ),
       );
     } else {
       // No overlap, add the current booking as a new consolidated booking
