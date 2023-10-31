@@ -1,6 +1,9 @@
 import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
 
+import bodyparser from 'body-parser';
+import cookieParser from 'cookie-parser';
+
 import getConfig from "./config";
 import router from "./router";
 import mongoose from "mongoose";
@@ -15,6 +18,9 @@ const app = express();
 
 app.use(morgan("combined"));
 app.use(express.json());
+
+app.use(bodyparser.json());
+app.use(cookieParser());
 
 app.use("/api/v1", router.router);
 
