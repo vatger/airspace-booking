@@ -1,5 +1,6 @@
-import mongoose, { HydratedDocument, Model } from "mongoose";
-import { Area, Euup } from "../interfaces/euup.interface";
+import mongoose, { HydratedDocument, Model } from 'mongoose';
+
+import { Area, Euup } from '../interfaces/euup.interface';
 
 export type EuupDocument = HydratedDocument<Euup>;
 export type AreaDocument = HydratedDocument<Area>;
@@ -13,7 +14,7 @@ export const areaSchema = new mongoose.Schema({
 });
 
 export const noticeInfo = new mongoose.Schema({
-  type: { type: String, default: "EUUP" },
+  type: { type: String, default: 'EUUP' },
   valid_wef: { type: Date },
   valid_til: { type: Date },
   released_on: { type: Date },
@@ -25,11 +26,11 @@ export const euupSchema = new mongoose.Schema({
 });
 
 export const euupModel: Model<EuupDocument> = mongoose.model<EuupDocument>(
-  "Euup",
+  'Euup',
   euupSchema,
-  "euupData"
+  'euupData',
 );
 export const areaModel: Model<AreaDocument> = mongoose.model<AreaDocument>(
-  "Area",
-  areaSchema
+  'Area',
+  areaSchema,
 );

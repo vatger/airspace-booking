@@ -1,5 +1,6 @@
-import mongoose, { HydratedDocument } from "mongoose";
-import { BookableArea } from "@/shared/interfaces/bookableArea.interface";
+import mongoose, { HydratedDocument } from 'mongoose';
+
+import { BookableArea } from '@/shared/interfaces/bookableArea.interface';
 
 export type BookableAreaDocument = HydratedDocument<BookableArea>;
 
@@ -16,4 +17,4 @@ const areaSchema = new mongoose.Schema({
   bookings: [bookingSchema],
 });
 
-export default mongoose.model<BookableArea>("bookableArea", areaSchema);
+export default mongoose.model<BookableArea>('bookableArea', areaSchema);
