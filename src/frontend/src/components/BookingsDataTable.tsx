@@ -1,10 +1,11 @@
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Button } from "primereact/button";
+import { Button } from 'primereact/button';
+import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
 
-import { Booking } from "@/shared/interfaces/bookableArea.interface";
-import { formatDateTime } from "../utils/dateFormater.util";
-import { FrontendBooking } from "../interfaces/FrontendBooking";
+import { FrontendBooking } from '../interfaces/FrontendBooking';
+import { formatDateTime } from '../utils/dateFormater.util';
+
+import { Booking } from '@/shared/interfaces/bookableArea.interface';
 
 const BookingsDataTable = ({
   bookings,

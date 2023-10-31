@@ -1,4 +1,4 @@
-import { FrontendBooking } from "../interfaces/FrontendBooking";
+import { FrontendBooking } from '../interfaces/FrontendBooking';
 
 const sortBookingsByStartEndDate = (bookings: FrontendBooking[]) => {
   // Sort the array by start_datetime and then by end_datetime
