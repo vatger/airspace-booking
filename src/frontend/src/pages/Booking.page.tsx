@@ -1,9 +1,10 @@
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
-import { SplitButton } from 'primereact/splitbutton';
+import { Menu } from 'primereact/menu';
 import { TabMenu } from 'primereact/tabmenu';
+import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import BookingDialog from '../components/BookingDialog';
 import BookingsDataTable from '../components/BookingsDataTable';
@@ -133,24 +134,39 @@ const BookingPage = () => {
     window.location.replace(authUrl);
   };
 
+  const toast = useRef<Toast>(null);
   const startContent = [
     <Button
       key={'Toolbar-StartContent-Button'}
       label="New"
       icon="pi pi-plus"
       className="mr-2"
-      onClick={() => setShowNewBookingDialog(true)}
+      onClick={() => {
+        if (user) { setShowNewBookingDialog(true); } else {
+          toast.current?.show({
+            severity: 'warn',
+            summary: 'Login required',
+            detail: 'Please login using the VATSIM SSO',
+            life: 6000,
+          });
+        }
+      }}
     />,
   ];
 
+  const menuLeft = useRef<Menu>(null);
   const items = [{
     label: 'Logout', icon: 'pi pi-power-off', command: () => {
       logout();
     },
   }];
-
   const endContent = [
-    <SplitButton label={!auth.auth.user ? 'Login' : `${user?.apidata.cid}`} model={items} onClick={() => { if (!auth.auth.user) { redirectToVatsimAuth(); } }} />,
+    <Button onClick={(event) => {
+      if (!auth.auth.user) { redirectToVatsimAuth(); } else {
+        menuLeft.current?.toggle(event);
+      }
+    }} label={!auth.auth.user ? 'Login' : `${user?.apidata.cid}`} />,
+    <Menu model={items} popup ref={menuLeft} id="popup_menu_left" />,
   ];
 
   const handleDelete = (rowData: FrontendBooking) => {
@@ -177,6 +193,7 @@ const BookingPage = () => {
 
   return (
     <div className="p-grid p-dir-col">
+      <Toast ref={toast} position="top-center" />
       <Toolbar start={startContent} end={endContent} />
       <Dialog
         visible={showNewBookingDialog}
