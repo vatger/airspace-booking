@@ -74,6 +74,7 @@ async function addBookingToArea(selectedAreas: string[], bookingData: Booking) {
     },
   );
 
+  // check if there is an overlapp in bookings
   const bookingOverlap: {
     areaIsBooked: boolean;
     conflictingAreas: string[];
@@ -83,6 +84,7 @@ async function addBookingToArea(selectedAreas: string[], bookingData: Booking) {
     existingAreas,
   );
   console.log(bookingOverlap);
+  // if there is an overlap in bookings return respective status code
   if (bookingOverlap.areaIsBooked) {
     return {
       status: BookingResponse.OverlapOfBookings,
