@@ -11,6 +11,5 @@ services:
       - '9229:9229/tcp'
     volumes:
       - .:/opt:delegated
-    environment:
-      - MONGO_URI
-      - PORT=3030
+    env_file:
+      - .env
