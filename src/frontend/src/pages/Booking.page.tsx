@@ -1,5 +1,6 @@
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
+import { SplitButton } from 'primereact/splitbutton';
 import { TabMenu } from 'primereact/tabmenu';
 import { Toolbar } from 'primereact/toolbar';
 import { useContext, useEffect, useState } from 'react';
@@ -85,7 +86,6 @@ const BookingPage = () => {
     return () => { };
   }, [auth]);
 
-
   useEffect(() => {
     const allBookings: FrontendBooking[] = [];
 
@@ -143,16 +143,14 @@ const BookingPage = () => {
     />,
   ];
 
+  const items = [{
+    label: 'Logout', icon: 'pi pi-power-off', command: () => {
+      logout();
+    },
+  }];
+
   const endContent = [
-    <div className={`${!auth.auth.user ? 'hidden' : ''} ml-2`}>
-      {user?.apidata.cid}
-    </div>,
-    <Button
-      key={'Toolbar-EndContent-Button'}
-      label="Login"
-      className="mr-2"
-      onClick={() => redirectToVatsimAuth()}
-    />,
+    <SplitButton label={!auth.auth.user ? 'Login' : `${user?.apidata.cid}`} model={items} onClick={() => { if (!auth.auth.user) { redirectToVatsimAuth(); } }} />,
   ];
 
   const handleDelete = (rowData: FrontendBooking) => {
