@@ -14,8 +14,8 @@ router.get('/areas/ED', euupController.getEuupData);
 
 router.get('/config/frontend', metaController.getFrontendConfig);
 
-router.get('/bookableAreas', bookableAreasController.getBookableAreas);
-router.patch('/bookableAreas/', bookableAreasController.addBookingToArea);
+router.get('/bookableareas', bookableAreasController.getBookableAreas);
+router.patch('/bookableareas', bookableAreasController.addBookingToArea);
 router.delete('/bookings/:id', bookableAreasController.deleteBookingFromArea);
 
 router.get('/auth/login', authController.authUser);
