@@ -40,6 +40,7 @@ async function addArea(
 
     if (!euupDataObject) {
       console.error('The EUUP data object could not be found');
+      return;
     }
 
     // Create a new area with the provided data
@@ -52,10 +53,10 @@ async function addArea(
     };
 
     // Push the new area into the areas array of the existing object
-    euupDataObject?.areas.push(newArea);
+    euupDataObject.areas.push(newArea);
 
     // Save the updated object back to the database
-    await euupDataObject?.save();
+    await euupDataObject.save();
   } catch (error) {
     console.error('Error adding area to the EUUP data object:', error);
   }
