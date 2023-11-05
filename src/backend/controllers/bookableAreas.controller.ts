@@ -39,6 +39,7 @@ export async function addBookingToArea(
 ) {
   try {
     const response = await bookableAreaService.addBookingToArea(
+      req.user,
       req.body.selectedAreas,
       req.body.booking,
     );

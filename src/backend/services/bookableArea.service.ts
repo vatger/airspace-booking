@@ -9,6 +9,7 @@ import {
   BookableArea,
   Booking,
 } from '@/shared/interfaces/bookableArea.interface';
+import User from '@/shared/interfaces/user.interface';
 import { BookingResponse } from '@/shared/types/BookingResponse';
 import { bookingOverlapsWithExistingBookings } from '@/shared/utils/bookingOverlap.util';
 async function getBookableAreas() {
@@ -36,11 +37,16 @@ async function addBookableArea(bookableArea: BookableArea) {
   }
 }
 
-async function addBookingToArea(selectedAreas: string[], bookingData: Booking) {
+async function addBookingToArea(user: User | undefined, selectedAreas: string[], bookingData: Booking) {
+  if (user === undefined) {
+    return;
+  }
+
   const booking: Booking = {
     ...bookingData,
     start_datetime: new Date(bookingData.start_datetime),
     end_datetime: new Date(bookingData.end_datetime),
+    booked_by: String(user.apidata.cid),
   };
 
   // Check if booking times are valid
