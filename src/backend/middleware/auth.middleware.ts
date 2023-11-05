@@ -9,7 +9,7 @@ export async function authMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  const token = `${req?.cookies?.areaBooking_token}`;
+  const token = req?.cookies?.areaBooking_token;
 
   if (!token) {
     return next(new APIError('token cookie must be set!', null, 400));
