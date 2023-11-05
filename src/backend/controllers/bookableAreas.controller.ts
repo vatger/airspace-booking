@@ -56,6 +56,7 @@ export async function deleteBookingFromArea(
 ) {
   try {
     await bookableAreaService.deleteBookingFromArea(
+      req.user,
       req.params.id,
       req.body.area_name,
     );

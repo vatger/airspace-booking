@@ -146,27 +146,41 @@ async function addBookedAreasToEuupData() {
 }
 
 export async function deleteBookingFromArea(
+  user: User | undefined,
   bookingId: string,
   area_name: string,
 ) {
+  if (user === undefined) {
+    return;
+  }
+
   try {
     // Find the bookableArea by name
     const bookableArea = await bookableAreaModel.findOne({ name: area_name });
 
-    if (bookableArea) {
-      // Find the index of the booking with the specified ID in the bookings array
-      const bookingIndex = bookableArea.bookings.findIndex(
-        (booking) => booking._id?.toString() === bookingId,
-      );
-
-      if (bookingIndex !== -1) {
-        // Remove the booking from the bookings array
-        bookableArea.bookings.splice(bookingIndex, 1);
-
-        // Save the updated bookableArea
-        await bookableArea.save();
-      }
+    if (!bookableArea) {
+      return;
     }
+    // Find the booking object with the specified ID in the bookings array
+    const bookingToRemove = bookableArea.bookings.find((booking) => booking._id?.toString() === bookingId);
+
+    // Booking with the specified ID not found
+    if (!bookingToRemove) {
+      return;
+    }
+    // prevent deletion of bookings which were not created by the user
+    if (bookingToRemove.booked_by !== String(user.apidata.cid)) {
+      return;
+    }
+
+    // delete booking
+    const bookingIndex = bookableArea.bookings.indexOf(bookingToRemove);
+    if (bookingIndex !== -1) {
+      bookableArea.bookings.splice(bookingIndex, 1);
+    }
+
+    // Save the updated bookableArea
+    await bookableArea.save();
   } catch (error) {
     console.error(error);
   }

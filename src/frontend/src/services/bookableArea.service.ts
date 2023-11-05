@@ -13,7 +13,7 @@ async function getBookableAreas() {
 
 async function deleteBooking(id: string, area_name: string) {
   try {
-    const response = await axios.delete('/api/v1/bookings' + id, {
+    const response = await axios.delete('/api/v1/bookings/' + id, {
       data: { area_name },
     });
     return response.data;

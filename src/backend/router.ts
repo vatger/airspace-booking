@@ -17,7 +17,7 @@ router.get('/config/frontend', metaController.getFrontendConfig);
 
 router.get('/bookableareas', bookableAreasController.getBookableAreas);
 router.patch('/bookableareas', authMiddleware, permissionMiddleware, bookableAreasController.addBookingToArea);
-router.delete('/bookings/:id', bookableAreasController.deleteBookingFromArea);
+router.delete('/bookings/:id', authMiddleware, permissionMiddleware, bookableAreasController.deleteBookingFromArea);
 
 router.get('/auth/login', authController.authUser);
 router.get('/auth/logout', authController.logoutUser);
