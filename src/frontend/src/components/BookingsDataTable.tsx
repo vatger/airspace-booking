@@ -1,7 +1,9 @@
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
+import { useContext } from 'react';
 
+import AuthContext from '../contexts/AuthProvider';
 import { FrontendBooking } from '../interfaces/FrontendBooking';
 import { formatDateTime } from '../utils/dateFormater.util';
 
@@ -14,12 +16,15 @@ const BookingsDataTable = ({
   bookings: Booking[];
   handleDelete: (rowData: FrontendBooking) => void;
 }) => {
+  const auth: any = useContext(AuthContext);
+
   const deleteButtonTemplate = (rowData: FrontendBooking) => {
     return (
       <Button
         icon="pi pi-trash"
         className="p-button-danger"
         onClick={() => handleDelete(rowData)}
+        disabled={auth.auth.user.apidata.cid != rowData.booked_by && auth.auth.user.areaBooking.admin === false}
       />
     );
   };
